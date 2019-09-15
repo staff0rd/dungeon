@@ -1,7 +1,6 @@
+import { Random } from './Random'
+
 export const Colors = {
-    toHtml(color: number)  {
-      return `#${color.toString(16).padStart(6)}`;
-    },
     Red: { 
       C50: 0xFFEBEE, 
       C100: 0xFFCDD2, 
@@ -316,3 +315,32 @@ export const Colors = {
     Black: 0x000000,
     White: 0xFFFFFF
 }
+
+export const ColorUtils = {
+  toHtml(color: number)  {
+    return `#${color.toString(16).padStart(6)}`;
+  },
+  random() {
+    var color = Random.pick(ColorsArray);
+    return Random.pick(color.shades)
+  }
+};
+
+const colorAny: any = Colors;
+const ColorsArray = Object.keys(Colors).filter(c => typeof(colorAny[c]) === "object")
+  .map(c => {
+  const colorsObject = colorAny[c];
+  const shades = Object.keys(colorsObject)
+    .filter(name => name.startsWith("C"))
+    .map(s => { return {name: s, color: colorsObject[s]}});
+
+  const highlights = Object.keys(colorsObject)
+    .filter(name => name.startsWith("A"))
+    .map(s => { return {name: s, color: colorsObject[s]}});
+
+  return {
+    name: c,
+    shades: shades, 
+    highlights
+  }}
+);
