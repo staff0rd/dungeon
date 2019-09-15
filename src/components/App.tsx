@@ -15,7 +15,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.pixiElement = element;
 
         if (this.pixiElement && this.pixiElement.children.length <= 0) {
-            this.app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: Colors.BlueGrey.C900 });
+            this.app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight, backgroundColor: Colors.BlueGrey.C900 });
             this.pixiElement.appendChild(this.app.view);
         }
 
@@ -28,7 +28,6 @@ export class App extends React.Component<AppProps, AppState> {
     render() {
         return (<div>
             <div ref={this.pixiUpdate} />
-          
         </div>
         );
     }
