@@ -14,9 +14,9 @@
       "baseUrl": ".", // This must be specified if "paths" is.
       "paths": {
         "*": ["src/types/*"] // This mapping is relative to "baseUrl"
-      },
+      }
     },
     "include": [
-      "src/index.tsx", 
-      "src/core/typings/lib/extend.d.ts"],
+      "src/index.tsx"
+    ]
   }
