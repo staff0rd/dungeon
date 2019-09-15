@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist/",
+      "noImplicitAny": true,
+      "module": "es6",
+      "sourceMap": true,
+      "target": "es5",
+      "lib": [
+        "es2017",
+        "dom"
+      ],
+      "jsx": "react",
+      "allowJs": true,
+      "baseUrl": ".", // This must be specified if "paths" is.
+      "paths": {
+        "*": ["src/types/*"] // This mapping is relative to "baseUrl"
+      },
+    },
+    "include": [
+      "src/index.tsx", 
+      "src/core/typings/lib/extend.d.ts"],
+  }
