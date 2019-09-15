@@ -17,6 +17,7 @@
       }
     },
     "include": [
-      "src/index.tsx"
+      "src/index.tsx",
+      "node_modules/pixi.js/pixi.js.d.ts"
     ]
   }
