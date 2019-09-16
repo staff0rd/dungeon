@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js"
 import { Colors , ColorUtils} from './core/Colors'
-import { Slider } from './blocks/Slider'
 import { Random } from './core//Random';
+import { RNG, Map } from "rot-js/lib";
 
 export class Game {
     private stage: PIXI.Container;
@@ -11,23 +11,36 @@ export class Game {
     }
 
     init() {
-        const gap = 50;
-        for (let i = gap; i < window.innerWidth; i+=gap*2) {
-            if (i + gap < window.innerWidth) {
-                this.addSlider(i, gap);
-            }
-        }
-        
-    }
+        RNG.setSeed(Random.between(1, 100000));
+        var map = new Map.Digger(50, 50, {})
+        map.create();
 
-    addSlider(x: number, gap: number) {
-        var slider = new Slider(
-            gap, 
-            window.innerHeight - 2*gap,
-            ColorUtils.random().color, 
-            Colors.BlueGrey.C300,
-            Random.between(1, 4)).view;
-        slider.position.set(x, gap);
-        this.stage.addChild(slider);
+        var rooms = map.getRooms();
+        var corridors = map.getCorridors();
+        var dungeon = new PIXI.Container();
+
+        for (var i=0; i<rooms.length; i++) {
+            var room = rooms[i];
+            const x = room.getLeft();
+            const y = room.getTop();
+            const width = room.getRight() - x;
+            const height = room.getBottom() - y;
+
+            const g = new PIXI.Graphics();
+            g.beginFill(ColorUtils.random().color);
+            g.drawRect(x, y, width, height);
+            g.endFill();
+            dungeon.addChild(g);
+            room.getDoors(console.log);
+        }
+        for (var i = 0; i< corridors.length; i ++) {
+            var corridor = corridors[i];
+         
+            console.log(corridor);
+        }
+
+
+        dungeon.scale.set(15);
+        this.stage.addChild(dungeon);
     }
 }

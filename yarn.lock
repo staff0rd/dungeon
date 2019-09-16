@@ -6767,6 +6767,11 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
+rot-js@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-2.1.1.tgz#b027f09c4bc642a9d7eb064dc32bde2fc51d4ee7"
+  integrity sha512-CtqgIm/gM2Rfo2yi4AktYcVWD0VU2UxmJsV9F+aI0LBI6Y4jhsX/SlLEDdmVqY3YmMUw8jWKONYfPb/jOfS3rQ==
+
 rsvp@^4.8.4:
   version "4.8.5"
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
