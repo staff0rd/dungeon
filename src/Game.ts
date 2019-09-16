@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js"
 import { Colors , ColorUtils} from './core/Colors'
 import { Random } from './core//Random';
-import { RNG, Map } from "rot-js/lib";
+import { RNG, Map } from "rot-js";
 
 export class Game {
     private stage: PIXI.Container;
