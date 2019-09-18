@@ -19,13 +19,8 @@ export class App extends React.Component<AppProps, AppState> {
         if (this.pixiElement && this.pixiElement.children.length <= 0) {
             this.app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight, backgroundColor: Colors.BlueGrey.C900 });
             this.pixiElement.appendChild(this.app.view);
-            this.game = new Game(this.app.stage);
+            this.game = new Game(this.app);
             this.game.init();
-        }
-
-        window.onresize = () => {
-          this.app.view.width = window.innerWidth;
-          this.app.view.height = window.innerHeight;
         }
     }
 

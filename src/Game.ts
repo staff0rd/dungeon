@@ -4,21 +4,56 @@ import { Random } from './core//Random';
 import { RNG, Map } from "rot-js";
 
 export class Game {
-    private stage: PIXI.Container;
+    private pixi: PIXI.Application;
+    private interactionHitBox: PIXI.Graphics;
 
-    constructor(stage: PIXI.Container) {
-        this.stage = stage;
+    constructor(pixi: PIXI.Application) {
+        this.pixi = pixi;
+        this.initInteraction();
+        
+        window.onresize = () => {
+            this.pixi.view.width = window.innerWidth;
+            this.pixi.view.height = window.innerHeight;
+            this.interactionHitBox.width = window.innerWidth;
+            this.interactionHitBox.height = window.innerHeight;
+          }
+    }
+
+    initInteraction() {
+        this.pixi.stage.interactive =true;
+        this.interactionHitBox = new PIXI.Graphics();
+        this.interactionHitBox.beginFill();
+        this.interactionHitBox.drawRect(0, 0, 1, 1);
+        this.interactionHitBox.endFill();
+        this.interactionHitBox.width = window.innerWidth;
+        this.interactionHitBox.height = window.innerHeight;
+        this.interactionHitBox.on("click", () => this.init());
+        this.interactionHitBox.on("tap", () => this.init());
+        this.interactionHitBox.alpha = 0;
+    }
+
+    setSeed() {
+        const seed = Random.between(1, 100000);
+        RNG.setSeed(seed);
+
+        var text = new PIXI.Text(seed.toString());
+        text.position.set(10, window.innerHeight - text.height - 10);
+        this.pixi.stage.addChild(text);
+        this.pixi.stage.interactive = true;
+
+        this.pixi.stage.on("click", () => this.init());
     }
 
     init() {
-        RNG.setSeed(Random.between(1, 100000));
+        this.pixi.stage.removeChildren();
+        this.pixi.stage.addChild(this.interactionHitBox);
+        this.setSeed();
         var map = new Map.Digger(60, 30, {})
         map.create();
 
         var rooms = map.getRooms();
         var corridors = map.getCorridors();
         var dungeon = new PIXI.Container();
-
 
         for (var i=0; i<rooms.length; i++) {
             var room = rooms[i];
@@ -55,13 +90,8 @@ export class Game {
             g.drawRect(rect.x, rect.y, rect.width, rect.height);
             g.endFill();
             dungeon.addChild(g);
-            console.log(rect);
         }
-
-
-
-
         dungeon.scale.set(15);
-        this.stage.addChild(dungeon);
+        this.pixi.stage.addChild(dungeon);
     }
 }
