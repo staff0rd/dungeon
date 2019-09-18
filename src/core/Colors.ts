@@ -320,8 +320,12 @@ export const ColorUtils = {
   toHtml(color: number)  {
     return `#${color.toString(16).padStart(6)}`;
   },
-  random() {
-    var color = Random.pick(ColorsArray);
+  random(exclude?: string) {
+    let colors = ColorsArray;
+    if (exclude)
+      colors = colors.filter(p => p.name != exclude);
+
+    var color = Random.pick(colors);
     return Random.pick(color.shades)
   }
 };

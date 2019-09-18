@@ -16,7 +16,7 @@ export class Game {
             this.pixi.view.height = window.innerHeight;
             this.interactionHitBox.width = window.innerWidth;
             this.interactionHitBox.height = window.innerHeight;
-          }
+        }
     }
 
     initInteraction() {
@@ -63,7 +63,7 @@ export class Game {
             const height = room.getBottom() - y + 1;
 
             const g = new PIXI.Graphics();
-            g.beginFill(ColorUtils.random().color);
+            g.beginFill(ColorUtils.random("BlueGrey").color);
             g.drawRect(x, y, width, height);
             g.endFill();
             dungeon.addChild(g);
