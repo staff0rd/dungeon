@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js"
 import { Colors , ColorUtils} from './core/Colors'
 import { Random } from './core//Random';
 import { RNG, Map } from "rot-js";
+import { Analytics } from "./core/Analytics"
 
 export class Game {
     private pixi: PIXI.Application;
@@ -9,7 +10,7 @@ export class Game {
 
     constructor(pixi: PIXI.Application) {
         this.pixi = pixi;
-        this.initInteraction();
+        this.initInteraction();        
         
         window.onresize = () => {
             this.pixi.view.width = window.innerWidth;
@@ -42,6 +43,7 @@ export class Game {
     }
 
     init() {
+        Analytics.buttonClick("rengenerate");
         this.pixi.stage.removeChildren();
         this.pixi.stage.addChild(this.interactionHitBox);
         this.setSeed();
