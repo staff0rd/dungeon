@@ -54,7 +54,8 @@ export class Game {
         this.setSeed();
         
         this.dungeonMap.generate();
-        
+
+        const startingRoom = Random.pick(this.dungeonMap.rooms);
         
         this.pixi.stage.addChild(this.dungeonMap.view);
     }
