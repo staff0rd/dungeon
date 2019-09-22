@@ -3,7 +3,14 @@ import * as ReactDOM from "react-dom";
 import {Analytics} from './core/Analytics';
 import { App } from "./components/App";
 
-Analytics.create("#{uid}#", "dungeon", "#{Build.BuildId}#")
+interface Window {
+    uid: string;
+    buildId: string;
+}
+
+declare var window: Window;
+
+Analytics.create(window.uid, "dungeon", window.buildId);
 
 ReactDOM.render(
     <App compiler="TypeScript" framework="React" />,
