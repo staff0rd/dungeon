@@ -27,8 +27,8 @@ export class Game {
         this.interactionHitBox.endFill();
         this.interactionHitBox.width = window.innerWidth;
         this.interactionHitBox.height = window.innerHeight;
-        this.interactionHitBox.on("click", () => this.init());
-        this.interactionHitBox.on("tap", () => this.init());
+        this.interactionHitBox.interactive = true;
+        this.interactionHitBox.on('pointertap', () => this.init());
         this.interactionHitBox.alpha = 0;
     }
 
@@ -39,9 +39,6 @@ export class Game {
         var text = new PIXI.Text(seed.toString());
         text.position.set(10, window.innerHeight - text.height - 10);
         this.pixi.stage.addChild(text);
-        this.pixi.stage.interactive = true;
-
-        this.pixi.stage.on("click", () => this.init());
     }
 
     init() {
