@@ -2,7 +2,7 @@ import * as React from "react";
 import * as PIXI from "pixi.js"
 import { Colors } from '../core/Colors'
 import { Game } from '../Game'
-
+import { Config } from '../Config'
 
 export interface AppProps { compiler: string; framework: string; }
 
@@ -19,7 +19,7 @@ export class App extends React.Component<AppProps, AppState> {
         if (this.pixiElement && this.pixiElement.children.length <= 0) {
             this.app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight, backgroundColor: Colors.BlueGrey.C900 });
             this.pixiElement.appendChild(this.app.view);
-            this.game = new Game(this.app);
+            this.game = new Game(new Config(), this.app);
             this.game.init();
         }
     }
