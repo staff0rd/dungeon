@@ -19,7 +19,7 @@ export class Game {
         this.config = config;
         this.initInteraction();
 
-        this.dungeonMap = new DungeonMap(60, 30, config.roomNumbers);
+        this.dungeonMap = new DungeonMap(60, 30, config.roomNumbers, config.scale);
         
         this.initPointer();
 
