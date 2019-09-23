@@ -318,7 +318,7 @@ export const Colors = {
 
 export const ColorUtils = {
   toHtml(color: number)  {
-    return `#${color.toString(16).padStart(6)}`;
+    return `#${color.toString(16).padStart(6, "0")}`;
   },
   random(exclude?: string) {
     let colors = ColorsArray;
