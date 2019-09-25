@@ -28,6 +28,7 @@ type RoomView = {
 type CorridorView = {
     view: PIXI.Container;
     corridor: Corridor;
+    rect: Rect;
 }
 const ROOM_SHADE_INDEX = 3;
 const ROOM_WALL_FROM_INDEX = 4;
@@ -44,12 +45,14 @@ export class DungeonMap {
     private walls: PIXI.Container;
     private showRoomNumbers: boolean;
     private scale: number;
+    private hideWalls: boolean;
 
-    constructor(width: number, height: number, showRoomNumbers: boolean, scale: number) {
+    constructor(width: number, height: number, showRoomNumbers: boolean, scale: number, hideWalls: boolean) {
         this.width = width;
         this.height = height;
         this.scale = scale;
         this.showRoomNumbers = showRoomNumbers;
+        this.hideWalls = hideWalls;
         this.view = new PIXI.Container();
     }
 
@@ -116,14 +119,16 @@ export class DungeonMap {
             g.endFill();
             view.addChild(g);
             this.view.addChild(view);
-            return { corridor, view };
+            return { corridor, view, rect };
         });
 
 
         this.placeWalls();
     }
 
-    private westWall(x: number, y: number, width: number, height: number, color: Color) {
+    private westWall(rect: Rect, color: Color) {
+        let width = this.scale * .5;
+        let height = (rect.height + 1) * this.scale;
 
         const from = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
         const to = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade)
@@ -137,11 +142,13 @@ export class DungeonMap {
                 this.scale * .5, height - this.scale * .5,
                 0, height
             ]);
-        g.position.set((x- .5) * this.scale, (y - .5) * this.scale)
+        g.position.set((rect.x- .5) * this.scale, (rect.y - .5) * this.scale)
         return g;
     }
 
     private placeWalls() {
+        if (this.hideWalls)
+            return;
         this.walls = new PIXI.Container();
         this.rooms.forEach(room => {
 
@@ -152,7 +159,7 @@ export class DungeonMap {
             let wide = (room.rect.height + 1) * this.scale;
 
             // left
-            let g = this.westWall(room.rect.x, room.rect.y, thin, wide, room.color)
+            let g = this.westWall(room.rect, room.color)
             
             this.view.addChild(g);
 
@@ -199,16 +206,17 @@ export class DungeonMap {
             g.position.set((room.rect.x -.5 )* this.scale, (room.rect.y + room.rect.height) * this.scale)
             
             this.view.addChild(g);
-
-
+        });
+        
+        this.corridors.forEach(corridor => {
+            let g = this.westWall(corridor.rect, Colors.BlueGrey.color())
+            this.view.addChild(g);
         });
     }
 
     private isTraversable(x: number, y: number) {
         return !this.getPoint(x, y).value;
     }
-
-   
 
     getPoint(x: number, y: number) {
         return this.data[x * this.height + y];

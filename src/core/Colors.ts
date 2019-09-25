@@ -15,7 +15,8 @@ export const Colors = {
       A100: 0xFF8A80, 
       A200: 0xFF5252, 
       A400: 0xFF1744, 
-      A700: 0xD50000, 
+      A700: 0xD50000,
+      color: () => convertToColor("Red")
     },
 
     Pink: { 
@@ -33,6 +34,7 @@ export const Colors = {
       A200: 0xFF4081, 
       A400: 0xF50057, 
       A700: 0xC51162, 
+      color: () => convertToColor("Pink")
     },
 
     Purple: { 
@@ -49,7 +51,8 @@ export const Colors = {
       A100: 0xEA80FC, 
       A200: 0xE040FB, 
       A400: 0xD500F9, 
-      A700: 0xAA00FF, 
+      A700: 0xAA00FF,
+      color: () => convertToColor("Purple")
     },
 
     DeepPurple: { 
@@ -67,6 +70,7 @@ export const Colors = {
       A200: 0x7C4DFF, 
       A400: 0x651FFF, 
       A700: 0x6200EA, 
+      color: () => convertToColor("DeepPurple")
     },
 
     Indigo: { 
@@ -84,6 +88,7 @@ export const Colors = {
       A200: 0x536DFE, 
       A400: 0x3D5AFE, 
       A700: 0x304FFE, 
+      color: () => convertToColor("Indigo")
     },
 
     Blue: { 
@@ -101,6 +106,7 @@ export const Colors = {
       A200: 0x448AFF, 
       A400: 0x2979FF, 
       A700: 0x2962FF, 
+      color: () => convertToColor("Blue")
     },
 
     LightBlue: { 
@@ -118,6 +124,7 @@ export const Colors = {
       A200: 0x40C4FF, 
       A400: 0x00B0FF, 
       A700: 0x0091EA, 
+      color: () => convertToColor("LightBlue")
     },
 
     Cyan: { 
@@ -135,6 +142,7 @@ export const Colors = {
       A200: 0x18FFFF, 
       A400: 0x00E5FF, 
       A700: 0x00B8D4, 
+      color: () => convertToColor("Cyan")
     },
 
     Teal: { 
@@ -152,6 +160,7 @@ export const Colors = {
       A200: 0x64FFDA, 
       A400: 0x1DE9B6, 
       A700: 0x00BFA5, 
+      color: () => convertToColor("Teal")
     },
 
     Green: { 
@@ -169,6 +178,7 @@ export const Colors = {
       A200: 0x69F0AE, 
       A400: 0x00E676, 
       A700: 0x00C853, 
+      color: () => convertToColor("Green")
     },
 
     LightGreen: { 
@@ -186,6 +196,7 @@ export const Colors = {
       A200: 0xB2FF59, 
       A400: 0x76FF03, 
       A700: 0x64DD17, 
+      color: () => convertToColor("LightGreen")
     },
 
     Lime: { 
@@ -203,6 +214,7 @@ export const Colors = {
       A200: 0xEEFF41, 
       A400: 0xC6FF00, 
       A700: 0xAEEA00, 
+      color: () => convertToColor("Lime")
     },
 
     Yellow: { 
@@ -220,6 +232,7 @@ export const Colors = {
       A200: 0xFFFF00, 
       A400: 0xFFEA00, 
       A700: 0xFFD600, 
+      color: () => convertToColor("Yellow")
     },
 
     Amber: { 
@@ -237,6 +250,7 @@ export const Colors = {
       A200: 0xFFD740, 
       A400: 0xFFC400, 
       A700: 0xFFAB00, 
+      color: () => convertToColor("Amber")
     },
 
     Orange: { 
@@ -254,6 +268,7 @@ export const Colors = {
       A200: 0xFFAB40, 
       A400: 0xFF9100, 
       A700: 0xFF6D00, 
+      color: () => convertToColor("Orange")
     },
 
     DeepOrange: { 
@@ -271,6 +286,7 @@ export const Colors = {
       A200: 0xFF6E40, 
       A400: 0xFF3D00, 
       A700: 0xDD2C00, 
+      color: () => convertToColor("DeepOrange")
     },
 
     Brown: { 
@@ -284,6 +300,7 @@ export const Colors = {
       C700: 0x5D4037, 
       C800: 0x4E342E, 
       C900: 0x3E2723, 
+      color: () => convertToColor("Brown")
     },
 
     Grey: { 
@@ -297,6 +314,7 @@ export const Colors = {
       C700: 0x616161, 
       C800: 0x424242, 
       C900: 0x212121, 
+      color: () => convertToColor("Grey")
     },
 
     BlueGrey: { 
@@ -310,6 +328,7 @@ export const Colors = {
       C700: 0x455A64, 
       C800: 0x37474F, 
       C900: 0x263238, 
+      color: () => convertToColor("BlueGrey")
     },
 
     Black: 0x000000,
@@ -343,21 +362,26 @@ export type Color = {
   highlights: Shade[]
 }
 
-const colorAny: any = Colors;
-const ColorsArray = Object.keys(Colors).filter(c => typeof(colorAny[c]) === "object")
-  .map(c => {
-  const colorsObject = colorAny[c];
+
+function convertToColor(name: string) : Color {
+  const colorAny: any = Colors;
+  const colorsObject = colorAny[name];
   const shades = Object.keys(colorsObject)
-    .filter(name => name.startsWith("C"))
-    .map(s => { return <Shade>{name: s, shade: colorsObject[s]}});
-
+  .filter(name => name.startsWith("C"))
+  .map(s => { return <Shade>{name: s, shade: colorsObject[s]}});
+  
   const highlights = Object.keys(colorsObject)
-    .filter(name => name.startsWith("A"))
-    .map(s => { return {name: s, shade: colorsObject[s]}});
-
+  .filter(name => name.startsWith("A"))
+  .map(s => { return {name: s, shade: colorsObject[s]}});
+  
   return <Color>{
-    name: c,
+    name,
     shades, 
     highlights
-  }}
-);
+  }
+}
+
+const colorAny: any = Colors;
+const ColorsArray = Object.keys(Colors)
+  .filter(c => typeof(colorAny[c]) === "object")
+  .map(name => convertToColor(name));
