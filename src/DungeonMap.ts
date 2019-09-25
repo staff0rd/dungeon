@@ -131,7 +131,7 @@ export class DungeonMap {
         let height = (rect.height + 1) * this.scale;
 
         const from = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
-        const to = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade)
+        const to = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade);
 
         let g = new PIXI.Graphics()
             .beginTextureFill(this.gradient(from, to, width, height, width, 0))
@@ -146,71 +146,101 @@ export class DungeonMap {
         return g;
     }
 
+    private eastWall(rect: Rect, color: Color) {
+        let width = this.scale * .5;
+        let height = (rect.height + 1) * this.scale;
+
+        const to = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
+        const from = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade);
+
+        let g = new PIXI.Graphics()
+        .beginTextureFill(this.gradient( from, to, width, height + this.scale, width, 0))
+        .lineStyle(1, Colors.Black)
+        .drawPolygon([
+            0, this.scale,
+            this.scale * .5, this.scale * .5,
+            this.scale * .5, height + this.scale * .5,
+            0, height
+        ]);
+    g.position.set((rect.x + rect.width) * this.scale, (rect.y - 1) * this.scale)
+        return g;
+    }
+
+    private northWall(rect: Rect, color: Color) {
+        let width = (rect.width + 1) * this.scale
+        let height = this.scale * .5;
+
+        const from = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
+        const to = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade);
+
+        const g = new PIXI.Graphics()
+            .beginTextureFill(this.gradient(from, to, width, height, 0, height))
+            .lineStyle(1, Colors.Black)
+            .drawPolygon([
+                0, 0,
+                width, 0,
+                width - this.scale * .5, this.scale * .5,
+                this.scale * .5, this.scale * .5
+            ]);
+        g.position.set((rect.x - .5) * this.scale, (rect.y - .5) * this.scale)
+        return g;
+    }
+
+    private southWall(rect: Rect, color: Color) {
+        let width = (rect.width + 1) * this.scale
+        let height = this.scale * .5;
+
+        const to = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
+        const from = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade);
+
+        const g = new PIXI.Graphics()
+        .beginTextureFill(this.gradient(from, to, width, height, 0, height))
+        .lineStyle(1, Colors.Black)
+        .drawPolygon([
+            this.scale * .5, 0,
+            width - this.scale * .5, 0,
+            width, this.scale * .5,
+            0, this.scale * .5
+        ]);
+        g.position.set((rect.x -.5 )* this.scale, (rect.y + rect.height) * this.scale)
+        return g;
+    }
+
     private placeWalls() {
         if (this.hideWalls)
             return;
+
         this.walls = new PIXI.Container();
+
         this.rooms.forEach(room => {
-
-            const dark = ColorUtils.toHtml(room.color.shades[ROOM_WALL_FROM_INDEX].shade);
-            const light = ColorUtils.toHtml(room.color.shades[ROOM_WALL_TO_INDEX].shade);
-
-            let thin = this.scale * .5;
-            let wide = (room.rect.height + 1) * this.scale;
-
-            // left
-            let g = this.westWall(room.rect, room.color)
-            
+            let g = this.westWall(room.rect, room.color)            
             this.view.addChild(g);
 
-            // right
-            g = new PIXI.Graphics()
-                .beginTextureFill(this.gradient( dark, light, thin, wide + this.scale, thin, 0))
-                .lineStyle(1, Colors.Black)
-                .drawPolygon([
-                    0, this.scale,
-                    this.scale * .5, this.scale * .5,
-                    this.scale * .5, wide + this.scale * .5,
-                    0, wide
-                ]);
-            g.position.set((room.rect.x + room.rect.width) * this.scale, (room.rect.y - 1) * this.scale)
-            
+            g = this.eastWall(room.rect, room.color);            
             this.view.addChild(g);
             
-            wide = (room.rect.width + 1 ) * this.scale
-
-            // top
-            g = new PIXI.Graphics()
-                .beginTextureFill(this.gradient(light, dark, wide, thin, 0, thin))
-                .lineStyle(1, Colors.Black)
-                .drawPolygon([
-                    0, 0,
-                    wide, 0,
-                    wide - this.scale * .5, this.scale * .5,
-                    this.scale * .5, this.scale * .5
-                ]);
-            g.position.set((room.rect.x- .5) * this.scale, (room.rect.y - .5) * this.scale)
-            
+            g = this.northWall(room.rect, room.color);
             this.view.addChild(g);
 
-            // bottom
-            g = new PIXI.Graphics()
-                .beginTextureFill(this.gradient(light, dark, wide, thin, 0, thin))
-                .lineStyle(1, Colors.Black)
-                .drawPolygon([
-                    this.scale * .5, 0,
-                    wide - this.scale * .5, 0,
-                    wide, this.scale * .5,
-                    0, this.scale * .5
-                ]);
-            g.position.set((room.rect.x -.5 )* this.scale, (room.rect.y + room.rect.height) * this.scale)
-            
+            g = this.southWall(room.rect, room.color);
             this.view.addChild(g);
         });
-        
+
         this.corridors.forEach(corridor => {
-            let g = this.westWall(corridor.rect, Colors.BlueGrey.color())
-            this.view.addChild(g);
+            const color = Colors.BlueGrey.color();
+            if (!this.isTraversable(corridor.rect.x - 1, corridor.rect.y))
+                this.view.addChild(this.westWall(corridor.rect, color))
+
+            if (!this.isTraversable(corridor.rect.x + 1, corridor.rect.y))
+                this.view.addChild(this.eastWall(corridor.rect, color))
+            
+            if (!this.isTraversable(corridor.rect.x, corridor.rect.y - 1))
+                this.view.addChild(this.northWall(corridor.rect, color));
+
+            if (!this.isTraversable(corridor.rect.x, corridor.rect.y + 1))  
+                this.view.addChild(this.southWall(corridor.rect, color))
+            
+            
         });
     }
 
