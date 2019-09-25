@@ -320,15 +320,28 @@ export const ColorUtils = {
   toHtml(color: number)  {
     return `#${color.toString(16).padStart(6, "0")}`;
   },
-  random(exclude?: string) {
+  randomShade(exclude?: string) : Shade {
+    return Random.pick(this.randomColor(exclude).shades);
+  },
+  randomColor(exclude?: string) : Color {
     let colors = ColorsArray;
     if (exclude)
       colors = colors.filter(p => p.name != exclude);
 
-    var color = Random.pick(colors);
-    return Random.pick(color.shades)
+    return Random.pick(colors);
   }
 };
+
+type Shade = {
+  name: string;
+  shade: any;
+}
+
+export type Color = {
+  name: string;
+  shades: Shade[],
+  highlights: Shade[]
+}
 
 const colorAny: any = Colors;
 const ColorsArray = Object.keys(Colors).filter(c => typeof(colorAny[c]) === "object")
@@ -336,15 +349,15 @@ const ColorsArray = Object.keys(Colors).filter(c => typeof(colorAny[c]) === "obj
   const colorsObject = colorAny[c];
   const shades = Object.keys(colorsObject)
     .filter(name => name.startsWith("C"))
-    .map(s => { return {name: s, color: colorsObject[s]}});
+    .map(s => { return <Shade>{name: s, shade: colorsObject[s]}});
 
   const highlights = Object.keys(colorsObject)
     .filter(name => name.startsWith("A"))
-    .map(s => { return {name: s, color: colorsObject[s]}});
+    .map(s => { return {name: s, shade: colorsObject[s]}});
 
-  return {
+  return <Color>{
     name: c,
-    shades: shades, 
+    shades, 
     highlights
   }}
 );

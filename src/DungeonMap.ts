@@ -1,8 +1,8 @@
-import { Map, Color } from "rot-js";
+import { Map } from "rot-js";
 import { default as Dungeon } from 'rot-js/lib/map/dungeon'
 import { Room, Corridor } from 'rot-js/lib/map/features'
 import * as PIXI from "pixi.js";
-import { Colors , ColorUtils} from './core/Colors'
+import { Colors , ColorUtils, Color} from './core/Colors'
 
 export type Point = {
     x: number;
@@ -22,12 +22,16 @@ type RoomView = {
     room: Room;
     number: number;
     rect: Rect;
+    color: Color;
 }
 
 type CorridorView = {
     view: PIXI.Container;
     corridor: Corridor;
 }
+const ROOM_SHADE_INDEX = 3;
+const ROOM_WALL_FROM_INDEX = 4;
+const ROOM_WALL_TO_INDEX = 9;
 
 export class DungeonMap {
     view: PIXI.Container;
@@ -66,7 +70,8 @@ export class DungeonMap {
             const height = room.getBottom() - y + 1;
             const view = new PIXI.Container();
             const g = new PIXI.Graphics();
-            g.beginFill(ColorUtils.random("BlueGrey").color);
+            const color = ColorUtils.randomColor("BlueGrey");
+            g.beginFill(color.shades[ROOM_SHADE_INDEX].shade);
             g.drawRect(x * this.scale, y * this.scale, width * this.scale, height * this.scale);
             g.endFill();
             view.addChild(g);
@@ -92,7 +97,7 @@ export class DungeonMap {
 
             const rect = { x, y, width, height};
 
-            const result = { room, view, number, rect };
+            const result = { room, view, number, rect, color };
             console.log(number, result);
             return result;
         });
@@ -118,27 +123,36 @@ export class DungeonMap {
         this.placeWalls();
     }
 
+    private westWall(x: number, y: number, width: number, height: number, color: Color) {
+
+        const from = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
+        const to = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade)
+
+        let g = new PIXI.Graphics()
+            .beginTextureFill(this.gradient(from, to, width, height, width, 0))
+            .lineStyle(1, Colors.Black)
+            .drawPolygon([
+                0, 0,
+                this.scale * .5, this.scale * .5,
+                this.scale * .5, height - this.scale * .5,
+                0, height
+            ]);
+        g.position.set((x- .5) * this.scale, (y - .5) * this.scale)
+        return g;
+    }
+
     private placeWalls() {
         this.walls = new PIXI.Container();
         this.rooms.forEach(room => {
 
-            const dark = ColorUtils.toHtml(Colors.BlueGrey.C900);
-            const light = ColorUtils.toHtml(Colors.BlueGrey.C500);
+            const dark = ColorUtils.toHtml(room.color.shades[ROOM_WALL_FROM_INDEX].shade);
+            const light = ColorUtils.toHtml(room.color.shades[ROOM_WALL_TO_INDEX].shade);
 
             let thin = this.scale * .5;
             let wide = (room.rect.height + 1) * this.scale;
 
             // left
-            let g = new PIXI.Graphics()
-                .beginTextureFill(this.gradient(light, dark, thin, wide, thin, 0))
-                .lineStyle(1, Colors.Black)
-                .drawPolygon([
-                    0, 0,
-                    this.scale * .5, this.scale * .5,
-                    this.scale * .5, wide - this.scale * .5,
-                    0, wide
-                ]);
-            g.position.set((room.rect.x- .5) * this.scale, (room.rect.y - .5) * this.scale)
+            let g = this.westWall(room.rect.x, room.rect.y, thin, wide, room.color)
             
             this.view.addChild(g);
 
