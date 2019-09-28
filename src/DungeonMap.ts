@@ -10,22 +10,11 @@ import { RoomView } from "./RoomView";
 import { CorridorView } from "./CorridorView";
 import { Edge } from "./Edge";
 import { Tip } from "./Tip";
+import { Segment } from "./Segment";
+import { Direction } from "./Direction";
+import { WallBuilder } from './WallBuilder';
 
 const ROOM_SHADE_INDEX = 3;
-const ROOM_WALL_FROM_INDEX = 4;
-const ROOM_WALL_TO_INDEX = 9;
-
-enum Direction {
-    North,
-    East,
-    South,
-    West
-}
-
-type GradientColorPoint = {
-    start: string;
-    stop: string;
-}
 
 export class DungeonMap {
     view: PIXI.Container;
@@ -39,11 +28,13 @@ export class DungeonMap {
     private showRoomNumbers: boolean;
     private scale: number;
     private hideWalls: boolean;
+    private wallBuilder: WallBuilder;
 
     constructor(width: number, height: number, showRoomNumbers: boolean, scale: number, hideWalls: boolean) {
         this.width = width;
         this.height = height;
         this.scale = scale;
+        this.wallBuilder = new WallBuilder(this.scale);
         this.showRoomNumbers = showRoomNumbers;
         this.hideWalls = hideWalls;
         this.view = new PIXI.Container();
@@ -118,122 +109,22 @@ export class DungeonMap {
         this.placeWalls();
     }
 
-    private drawWall(rect: Rect, color: Color, fromTip: Tip = Tip.Extend, toTip: Tip = Tip.Extend, direction: Direction = Direction.East) {
-        let width: number, height: number;
-        let gradient: PIXI.Texture;
-        const g = new PIXI.Graphics();
-        const points: number[] = [];
-        const gradientColors = this.getGradientStops(direction, color);
+    
 
-        switch (direction) {
-            case Direction.West:
-            case Direction.East: {
-                width = this.scale * .5;
-                height = rect.height * this.scale;
-                gradient = this.gradient(gradientColors.start, gradientColors.stop, width, height + this.scale, width, 0);
-                break;
-            }
-            case Direction.North:
-            case Direction.South: {
-                width = rect.width * this.scale;
-                height = this.scale * .5;
-                gradient = this.gradient(gradientColors.start, gradientColors.stop, width + this.scale, height, 0, height);
-                break;
-            }
-        }
-
-        switch (direction) {
-            case Direction.East: {
-                points.push(
-                    0, 0, 
-                    width, fromTip * width,
-                    width, height + (-width * toTip),
-                    0, height
-                );
-                g.position.set(rect.x2 * this.scale, rect.y1 * this.scale);
-                break;
-            }
-            case Direction.West: {
-                points.push(
-                    0, fromTip * width,
-                    width, 0,
-                    width, height,
-                    0, height + (-width * toTip)
-                );
-                g.position.set((rect.x1 - .5) * this.scale, rect.y1 * this.scale);
-                break;
-            }
-            case Direction.North: {
-                points.push(
-                    (height * fromTip), 0, 
-                    width + (-height * toTip), 0, 
-                    width, height, 
-                    0, height
-                );
-                g.position.set(rect.x1 * this.scale, (rect.y1 -.5) * this.scale);
-                break;
-            }
-            case Direction.South: {
-                points.push(
-                    0, 0,
-                    width, 0,
-                    width + (-height * toTip), height,
-                    (height * fromTip), height
-                );
-                g.position.set(rect.x1 * this.scale, rect.y2 * this.scale);
-                break;
-            }
-        }
-
-        g.beginTextureFill(gradient)
-            .lineStyle(1, Colors.Black)
-            .drawPolygon(points);
-        
-        return g;
-    }
-
-    private getGradientStops(direction: Direction, color: Color): GradientColorPoint {
-        const shade1 = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
-        const shade2 = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade);
-        if (direction == Direction.East || direction == Direction.South) {
-            return { start: shade1, stop: shade2 };
-        } else {
-            return { start: shade2, stop: shade1 };
-        }
-    }
+    
 
     private placeWalls() {
         if (this.hideWalls)
             return;
 
-            let g: PIXI.Graphics;
+       
         this.walls = new PIXI.Container();
 
         this.rooms.forEach(room => {
 
             const drawRoomWalls = (direction: Direction) => {
-                this.getRoomSegments(room, direction).segments.forEach((s, ix, all) => {
-                    let rect: Rect;
-                    const color = room.color;
-                    switch (direction) {
-                        case Direction.East:
-                        case Direction.West: {
-                            rect = new Rect(room.rect.x1, s.from, room.rect.width, s.to - s.from);
-                            break;
-                        }
-                        case Direction.North:
-                        case Direction.South: {
-                            rect = new Rect(s.from, room.rect.y1, s.to - s.from, room.rect.height);
-                            break;
-                        }
-
-                    }
-                    g = this.drawWall(rect, color, 
-                        ix == 0 ? Tip.Extend: Tip.Contract, 
-                        ix == all.length-1 ? Tip.Extend : Tip.Contract,
-                        direction);
-                    this.view.addChild(g);
-                });
+                this.getRoomEdge(room, direction).segments.forEach(
+                    this.drawWalls(room.rect, room.color, direction));
             }
 
             drawRoomWalls(Direction.West);
@@ -245,25 +136,39 @@ export class DungeonMap {
         
         this.corridors.forEach(corridor => {
             const color = Colors.BlueGrey.color();
-            // if (!this.isTraversable(corridor.rect.x1 - 1, corridor.rect.y2))
-            //     this.view.addChild(this.westWall(corridor.rect, color))
-
+            const drawCorridorWalls = (direction: Direction) => {
+                this.getCorridorEdge(corridor, direction)
+                .segments
+                .filter(s => {
+                    return !this.isTraversable(s.from, corridor.rect.y1 - 1)
+                })
+                .forEach(
+                    this.drawWalls(corridor.rect, color, direction));
+            }
+            drawCorridorWalls(Direction.North);
         });
-        // this.corridors.forEach(corridor => {
-        //     if (!this.isTraversable(corridor.rect.x1 - 1, corridor.rect.y2))
-        //         this.view.addChild(this.westWall(corridor.rect, color))
+    }
 
-        //     if (!this.isTraversable(corridor.rect.x1 + 1, corridor.rect.y2))
-        //         this.view.addChild(this.drawWall(corridor.rect, color, Tip.Extend))
-            
-        //     if (!this.isTraversable(corridor.rect.x1, corridor.rect.y2 - 1))
-        //         this.view.addChild(this.northWall(corridor.rect, color));
+    private drawWalls(baseRect: Rect, color: Color, direction: Direction) {
+        
+        return (s: Segment, ix: number, all: Segment[]) => {
+            let wallRect: Rect;
+            switch (direction) {
+                case Direction.East:
+                case Direction.West: {
+                    wallRect = new Rect(baseRect.x1, s.from, baseRect.width, s.to - s.from);
+                    break;
+                }
+                case Direction.North:
+                case Direction.South: {
+                    wallRect = new Rect(s.from, baseRect.y1, s.to - s.from, baseRect.height);
+                    break;
+                }
+            }
 
-        //     if (!this.isTraversable(corridor.rect.x1, corridor.rect.y2 + 1))  
-        //         this.view.addChild(this.southWall(corridor.rect, color))
-            
-            
-        // });
+            const g = this.wallBuilder.build(wallRect, color, ix == 0 ? Tip.Extend : Tip.Contract, ix == all.length - 1 ? Tip.Extend : Tip.Contract, direction);
+            this.view.addChild(g);
+        };
     }
 
     private getDoors(roomView: RoomView) {
@@ -272,12 +177,12 @@ export class DungeonMap {
         return doors;
     }
 
-    private getRoomSegments(room: RoomView, direction: Direction) {
+    private getRoomEdge(room: RoomView, direction: Direction) {
         const rects = this.getDoors(room).concat(this.corridors.map(c => c.rect));
         return this.getSegments(room.rect, rects, direction);
     }
 
-    private getCorridorSegments(corridor: CorridorView, direction: Direction) {
+    private getCorridorEdge(corridor: CorridorView, direction: Direction) {
         const doors = this.rooms.map(r => this.getDoors(r));
         const rects = this.rooms.map(r => r.rect)
             .concat([].concat(...doors));
@@ -334,16 +239,5 @@ export class DungeonMap {
 
     getPoint(x: number, y: number) {
         return this.data[x * this.height + y];
-    }
-
-    gradient(from: string, to: string, width: number, height: number, gradientWidth: number, gradientHeight: number) {
-        const c = document.createElement("canvas");
-        const ctx = c.getContext("2d");
-        const grd = ctx.createLinearGradient(0, 0, gradientWidth, gradientHeight);
-        grd.addColorStop(0, from);
-        grd.addColorStop(1, to);
-        ctx.fillStyle = grd;
-        ctx.fillRect(0,0, width, height);
-        return PIXI.Texture.from(c);
-      }
+    }  
 }
