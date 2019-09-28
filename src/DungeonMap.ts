@@ -222,15 +222,17 @@ export class DungeonMap {
             let g = this.westWall(room.rect, room.color)            
             this.view.addChild(g);
 
+            if (room.number > 0) {
             const edge = this.determineSegments(room);
             edge.segments.forEach((s, ix) => {
                 let rect = new Rect(room.rect.x1, s.from, room.rect.width, s.to - s.from);
-                
+                console.log(s)
                 g = this.drawWall(rect, room.color, 
                     ix == 0 ? Tip.Extend: Tip.Contract, 
                     ix == edge.segments.length-1 ? Tip.Extend : Tip.Contract);
                 this.view.addChild(g);
             });
+        }
             
             g = this.northWall(room.rect, room.color);
             this.view.addChild(g);
@@ -259,6 +261,8 @@ export class DungeonMap {
         });
     }
 
+//this.distrinctSegment(this.corridors.filter(c => c.rect.height == 1 && c.rect.x1 == room.rect.x2 && between(c.rect.y1, room.rect.y1, room.rect.y2)).map(c => new Segment(c.rect.y1, c.rect.y2)))
+
     private determineSegments(room: RoomView) {
         const edge = new Edge(room.rect.y1, room.rect.y2, Structure.Room);
         var intersectingCorridors = this.corridors.filter(c => {
@@ -266,18 +270,18 @@ export class DungeonMap {
         });
         intersectingCorridors.forEach(c => {
             console.log(c.rect);
-            edge.insert(c.rect.y2, c.rect.y2, Structure.Corridor);
+            edge.insert(c.rect.y1, c.rect.y2, Structure.Corridor);
         });
-        room.room.getDoors((x: number, y: number) => {
-            const rect = new Rect(x, y, 1, 1);
-            const corridorsIntersectingWithThisDoor = intersectingCorridors.filter(c => c.rect.y1 == rect.y1).length;
-            if (!corridorsIntersectingWithThisDoor) { // don't add doors that already intersected with corridors
-                if (this.eastIntersections(room, rect)) {
-                    console.log(rect);
-                    edge.insert(rect.y2, rect.y2, Structure.Door);
-                }
-            }
-        });
+        // room.room.getDoors((x: number, y: number) => {
+        //     const rect = new Rect(x, y, 1, 1);
+        //     const corridorsIntersectingWithThisDoor = intersectingCorridors.filter(c => c.rect.y1 == rect.y1).length;
+        //     if (!corridorsIntersectingWithThisDoor) { // don't add doors that already intersected with corridors
+        //         if (this.eastIntersections(room, rect)) {
+        //             console.log(rect);
+        //             edge.insert(rect.y2, rect.y2, Structure.Door);
+        //         }
+        //     }
+        // });
         
         return edge;
     }

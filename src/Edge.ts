@@ -32,7 +32,7 @@ export class Edge {
     insert(p1: number, p2: number, type: Structure) {
         for (let i = 0; i < this._segments.length; i++){
             if (!this._segments[i+1] || this._segments[i+1].point > p1) {
-                const from = p1-1;
+                const from = p1;
                 const to = p2;
                 this._segments.splice(i + 1, 0, new SegmentPoint(from, type), new SegmentPoint(to, this._segments[i].type));
                 return;
