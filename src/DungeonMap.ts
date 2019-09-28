@@ -139,26 +139,38 @@ export class DungeonMap {
     }
 
     private drawWall(rect: Rect, color: Color, fromTip: Tip = Tip.Extend, toTip: Tip = Tip.Extend, direction: Direction = Direction.East) {
-
-        let width = this.scale * .5;
-        let height = rect.height * this.scale;
-
+        let width: number, height: number;
+        let gradient: PIXI.Texture;
+        const g = new PIXI.Graphics();
+        const points: number[] = [];
         const gradientColors = this.getGradientStops(direction, color);
-        const gradient = this.gradient(gradientColors.start, gradientColors.stop, width, height + this.scale, width, 0);
-        
-        const points: number[] = [
-            0, 0, 
-            width, fromTip * width,
-            width, height + (-width * toTip),
-            0, height
-        ];
 
-        let g = new PIXI.Graphics()
-            .beginTextureFill(gradient)
+        switch (direction) {
+            case Direction.West:
+            case Direction.East: {
+                width = this.scale * .5;
+                height = rect.height * this.scale;
+                break;
+            }
+        }
+
+        switch (direction) {
+            case Direction.East: {
+                gradient = this.gradient(gradientColors.start, gradientColors.stop, width, height + this.scale, width, 0);
+                points.push(
+                    0, 0, 
+                    width, fromTip * width,
+                    width, height + (-width * toTip),
+                    0, height
+                );
+                g.position.set(rect.x2 * this.scale, rect.y1 * this.scale)
+            }
+        }
+
+        g.beginTextureFill(gradient)
             .lineStyle(1, Colors.Black)
             .drawPolygon(points);
         
-        g.position.set(rect.x2 * this.scale, rect.y1 * this.scale)
         return g;
     }
 
@@ -222,17 +234,13 @@ export class DungeonMap {
             let g = this.westWall(room.rect, room.color)            
             this.view.addChild(g);
 
-            if (room.number > 0) {
-            const edge = this.determineSegments(room);
-            edge.segments.forEach((s, ix) => {
-                let rect = new Rect(room.rect.x1, s.from, room.rect.width, s.to - s.from);
-                console.log(s)
-                g = this.drawWall(rect, room.color, 
-                    ix == 0 ? Tip.Extend: Tip.Contract, 
-                    ix == edge.segments.length-1 ? Tip.Extend : Tip.Contract);
-                this.view.addChild(g);
-            });
-        }
+        this.getSegments(room).segments.forEach((s, ix, all) => {
+            let rect = new Rect(room.rect.x1, s.from, room.rect.width, s.to - s.from);
+            g = this.drawWall(rect, room.color, 
+                ix == 0 ? Tip.Extend: Tip.Contract, 
+                ix == all.length-1 ? Tip.Extend : Tip.Contract);
+            this.view.addChild(g);
+        });
             
             g = this.northWall(room.rect, room.color);
             this.view.addChild(g);
@@ -261,34 +269,30 @@ export class DungeonMap {
         });
     }
 
-//this.distrinctSegment(this.corridors.filter(c => c.rect.height == 1 && c.rect.x1 == room.rect.x2 && between(c.rect.y1, room.rect.y1, room.rect.y2)).map(c => new Segment(c.rect.y1, c.rect.y2)))
-
-    private determineSegments(room: RoomView) {
-        const edge = new Edge(room.rect.y1, room.rect.y2, Structure.Room);
-        var intersectingCorridors = this.corridors.filter(c => {
-            return this.eastIntersections(room, c.rect);
-        });
-        intersectingCorridors.forEach(c => {
-            console.log(c.rect);
-            edge.insert(c.rect.y1, c.rect.y2, Structure.Corridor);
-        });
-        // room.room.getDoors((x: number, y: number) => {
-        //     const rect = new Rect(x, y, 1, 1);
-        //     const corridorsIntersectingWithThisDoor = intersectingCorridors.filter(c => c.rect.y1 == rect.y1).length;
-        //     if (!corridorsIntersectingWithThisDoor) { // don't add doors that already intersected with corridors
-        //         if (this.eastIntersections(room, rect)) {
-        //             console.log(rect);
-        //             edge.insert(rect.y2, rect.y2, Structure.Door);
-        //         }
-        //     }
-        // });
-        
-        return edge;
+    private getDoors(roomView: RoomView) {
+        const doors: Rect[] = []
+        roomView.room.getDoors((x: number, y: number) => doors.push(new Rect(x, y, 1, 1)));
+        return doors;
     }
 
-    private eastIntersections(room: RoomView, intersector: Rect): boolean {
-        const roomRect = room.rect;
-        return intersector.x1 == roomRect.x2 && intersector.height == 1 && between(intersector.y1, roomRect.y1, roomRect.y2);
+    private getSegments(room: RoomView, direction: Direction = Direction.East) {
+        const rects = this.getDoors(room).concat(this.corridors.map(c => c.rect));
+        
+        let edge: Edge, intersections: Rect[], edgeInserter: (rect: Rect) => void;
+
+        switch (direction) {
+            case Direction.East: {
+                edge = new Edge(room.rect.y1, room.rect.y2, Structure.Room);
+                intersections = rects.filter(rect => 
+                    rect.x1 == room.rect.x2 && rect.height == 1 && between(rect.y1, room.rect.y1, room.rect.y2));
+                    edgeInserter = (rect: Rect) => edge.insert(rect.y1, rect.y2, Structure.Corridor);
+                break;
+            }
+        }
+
+        intersections.forEach(edgeInserter);
+
+        return edge;
     }
 
     private isTraversable(x: number, y: number) {
