@@ -353,7 +353,7 @@ export const ColorUtils = {
 
 type Shade = {
   name: string;
-  shade: any;
+  shade: number;
 }
 
 export type Color = {

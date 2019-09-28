@@ -2,16 +2,17 @@ import * as PIXI from "pixi.js"
 import { Random } from './core//Random';
 import { RNG } from "rot-js";
 import { Analytics } from "./core/Analytics"
-import { DungeonMap, Point } from "./DungeonMap";
+import { DungeonMap } from "./DungeonMap";
 import { Colors } from './core/Colors';
 import { Config } from './Config'
+import { Point } from './core/Point';
 
 export class Game {
     private pixi: PIXI.Application;
     private interactionHitBox: PIXI.Graphics;
     private dungeonMap: DungeonMap;
     private pointerBlock: PIXI.Graphics;
-    private lastPoint: Point;
+    private lastPoint: Point<any>;
     private config: Config;
 
     constructor(config:Config, pixi: PIXI.Application) {
@@ -57,7 +58,6 @@ export class Game {
     pointerMove(e: PIXI.interaction.InteractionEvent): any {
         const position = e.data.getLocalPosition(this.dungeonMap.view);
         const x = Math.floor(position.x), y = Math.floor(position.y);
-        console.log('pos', x, y);
         const point = this.dungeonMap.getPoint(x,y);
         if (point != this.lastPoint) {
             this.pointerBlock.position.set(x, y);
