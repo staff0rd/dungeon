@@ -150,20 +150,31 @@ export class DungeonMap {
             case Direction.East: {
                 width = this.scale * .5;
                 height = rect.height * this.scale;
+                gradient = this.gradient(gradientColors.start, gradientColors.stop, width, height + this.scale, width, 0);
                 break;
             }
         }
 
         switch (direction) {
             case Direction.East: {
-                gradient = this.gradient(gradientColors.start, gradientColors.stop, width, height + this.scale, width, 0);
                 points.push(
                     0, 0, 
                     width, fromTip * width,
                     width, height + (-width * toTip),
                     0, height
                 );
-                g.position.set(rect.x2 * this.scale, rect.y1 * this.scale)
+                g.position.set(rect.x2 * this.scale, rect.y1 * this.scale);
+                break;
+            }
+            case Direction.West: {
+                points.push(
+                    0, fromTip * width,
+                    width, 0,
+                    width, height,
+                    0, height + (-width * toTip)
+                );
+                g.position.set((rect.x1 - .5) * this.scale, rect.y1 * this.scale);
+                break;
             }
         }
 
@@ -228,19 +239,24 @@ export class DungeonMap {
         if (this.hideWalls)
             return;
 
+            let g: PIXI.Graphics;
         this.walls = new PIXI.Container();
 
         this.rooms.forEach(room => {
-            let g = this.westWall(room.rect, room.color)            
-            this.view.addChild(g);
 
-        this.getSegments(room).segments.forEach((s, ix, all) => {
-            let rect = new Rect(room.rect.x1, s.from, room.rect.width, s.to - s.from);
-            g = this.drawWall(rect, room.color, 
-                ix == 0 ? Tip.Extend: Tip.Contract, 
-                ix == all.length-1 ? Tip.Extend : Tip.Contract);
-            this.view.addChild(g);
-        });
+            const h = (direction: Direction) => {
+                this.getSegments(room, direction).segments.forEach((s, ix, all) => {
+                    let rect = new Rect(room.rect.x1, s.from, room.rect.width, s.to - s.from);
+                    g = this.drawWall(rect, room.color, 
+                        ix == 0 ? Tip.Extend: Tip.Contract, 
+                        ix == all.length-1 ? Tip.Extend : Tip.Contract,
+                        direction);
+                    this.view.addChild(g);
+                });
+            }
+
+            h(Direction.West);
+            h(Direction.East);
             
             g = this.northWall(room.rect, room.color);
             this.view.addChild(g);
@@ -275,22 +291,36 @@ export class DungeonMap {
         return doors;
     }
 
-    private getSegments(room: RoomView, direction: Direction = Direction.East) {
+    private getSegments(room: RoomView, direction: Direction) {
         const rects = this.getDoors(room).concat(this.corridors.map(c => c.rect));
-        
         let edge: Edge, intersections: Rect[], edgeInserter: (rect: Rect) => void;
+
+        // if (room.number != 5 || <any>direction != Direction.West)
+        //      return new Edge(room.rect.y1, room.rect.y2, Structure.Room);
+
+        switch(direction) {
+            case Direction.East:
+            case Direction.West: {
+                edge = new Edge(room.rect.y1, room.rect.y2, Structure.Room);
+                edgeInserter = (rect: Rect) => edge.insert(rect.y1, rect.y2, Structure.Corridor);
+                intersections = rects.filter(rect => rect.height == 1 && between(rect.y1, room.rect.y1, room.rect.y2));
+                break;
+            }
+        }
 
         switch (direction) {
             case Direction.East: {
-                edge = new Edge(room.rect.y1, room.rect.y2, Structure.Room);
-                intersections = rects.filter(rect => 
-                    rect.x1 == room.rect.x2 && rect.height == 1 && between(rect.y1, room.rect.y1, room.rect.y2));
-                    edgeInserter = (rect: Rect) => edge.insert(rect.y1, rect.y2, Structure.Corridor);
+                intersections = intersections.filter(rect => rect.x1 == room.rect.x2);
+                break;
+            }
+            case Direction.West: {
+                intersections = intersections.filter(rect => rect.x2 == room.rect.x1);
                 break;
             }
         }
 
         intersections.forEach(edgeInserter);
+        console.log(edge.segments, room.rect)
 
         return edge;
     }

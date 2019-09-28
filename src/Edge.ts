@@ -19,7 +19,6 @@ export class Edge {
     }
 
     get segments() {
-        console.log(this._segments);
         const segments: Segment[] = [];
         for (let i = 1; i < this._segments.length; i++) {
             if (this._segments[i-1].type == this._type) {
@@ -34,6 +33,7 @@ export class Edge {
             if (!this._segments[i+1] || this._segments[i+1].point > p1) {
                 const from = p1;
                 const to = p2;
+                console.log('adding', from, to, this._segments)
                 this._segments.splice(i + 1, 0, new SegmentPoint(from, type), new SegmentPoint(to, this._segments[i].type));
                 return;
             }
