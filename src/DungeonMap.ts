@@ -212,8 +212,9 @@ export class DungeonMap {
         this.rooms.forEach(room => {
 
             const drawRoomWalls = (direction: Direction) => {
-                this.getSegments(room, direction).segments.forEach((s, ix, all) => {
+                this.getRoomSegments(room, direction).segments.forEach((s, ix, all) => {
                     let rect: Rect;
+                    const color = room.color;
                     switch (direction) {
                         case Direction.East:
                         case Direction.West: {
@@ -227,7 +228,7 @@ export class DungeonMap {
                         }
 
                     }
-                    g = this.drawWall(rect, room.color, 
+                    g = this.drawWall(rect, color, 
                         ix == 0 ? Tip.Extend: Tip.Contract, 
                         ix == all.length-1 ? Tip.Extend : Tip.Contract,
                         direction);
@@ -241,10 +242,14 @@ export class DungeonMap {
             drawRoomWalls(Direction.South);
         });
 
-        // return;
+        
+        this.corridors.forEach(corridor => {
+            const color = Colors.BlueGrey.color();
+            // if (!this.isTraversable(corridor.rect.x1 - 1, corridor.rect.y2))
+            //     this.view.addChild(this.westWall(corridor.rect, color))
 
+        });
         // this.corridors.forEach(corridor => {
-        //     const color = Colors.BlueGrey.color();
         //     if (!this.isTraversable(corridor.rect.x1 - 1, corridor.rect.y2))
         //         this.view.addChild(this.westWall(corridor.rect, color))
 
@@ -267,42 +272,53 @@ export class DungeonMap {
         return doors;
     }
 
-    private getSegments(room: RoomView, direction: Direction) {
+    private getRoomSegments(room: RoomView, direction: Direction) {
         const rects = this.getDoors(room).concat(this.corridors.map(c => c.rect));
+        return this.getSegments(room.rect, rects, direction);
+    }
+
+    private getCorridorSegments(corridor: CorridorView, direction: Direction) {
+        const doors = this.rooms.map(r => this.getDoors(r));
+        const rects = this.rooms.map(r => r.rect)
+            .concat([].concat(...doors));
+        return this.getSegments(corridor.rect, rects, direction);
+    }
+
+    private getSegments(baseRect: Rect, rects: Rect[], direction: Direction) {
         let edge: Edge, intersections: Rect[], edgeInserter: (rect: Rect) => void;
 
         switch(direction) {
             case Direction.East:
             case Direction.West: {
-                edge = new Edge(room.rect.y1, room.rect.y2, Structure.Room);
+                edge = new Edge(baseRect.y1, baseRect.y2, Structure.Room);
                 edgeInserter = (rect: Rect) => edge.insert(rect.y1, rect.y2, Structure.Corridor);
-                intersections = rects.filter(rect => rect.height == 1 && between(rect.y1, room.rect.y1, room.rect.y2));
+                intersections = rects.filter(rect => rect.height == 1 && between(rect.y1, baseRect.y1, baseRect.y2));
                 break;
             }
             case Direction.North:
             case Direction.South: {
-                edge = new Edge(room.rect.x1, room.rect.x2, Structure.Room);
+                edge = new Edge(baseRect.x1, baseRect.x2, Structure.Room);
                 edgeInserter = (rect: Rect) => edge.insert(rect.x1, rect.x2, Structure.Corridor);
-                intersections = rects.filter(rect => rect.width == 1 && between(rect.x1, room.rect.x1, room.rect.x2));
+                intersections = rects.filter(rect => rect.width == 1 && between(rect.x1, baseRect.x1, baseRect.x2));
                 break;
             }
         }
 
         switch (direction) {
             case Direction.East: {
-                intersections = intersections.filter(rect => rect.x1 == room.rect.x2);
+                intersections = intersections.filter(rect => rect.x1 == baseRect.x2);
                 break;
             }
             case Direction.West: {
-                intersections = intersections.filter(rect => rect.x2 == room.rect.x1);
+                intersections = intersections.filter(rect => rect.x2 == baseRect.x1);
                 break;
             }
             case Direction.North: {
-                intersections = intersections.filter(rect => rect.y2 == room.rect.y1);
+                intersections = intersections.filter(rect => rect.y2 == baseRect.y1);
                 break;
             }
             case Direction.South: {
-                intersections = intersections.filter(rect => rect.y1 == room.rect.y2);
+                intersections = intersections.filter(rect => rect.y1 == baseRect.y2);
                 break;
             }
         }
