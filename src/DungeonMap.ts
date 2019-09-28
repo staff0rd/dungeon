@@ -11,6 +11,7 @@ import { Segment } from "./Segment";
 import { Direction } from "./Direction";
 import { WallBuilder } from './WallBuilder';
 import { EdgeManager } from "./EdgeManager";
+import { isTryStatement } from "@babel/types";
 
 const ROOM_SHADE_INDEX = 3;
 
@@ -112,10 +113,13 @@ export class DungeonMap {
         if (this.hideWalls)
             return;
 
+        const roomEndTip = (s: Segment, ix: number, all: Segment[]) => ix == all.length - 1 ? Tip.Extend : Tip.Contract;
+        const roomStartTip = (s: Segment, ix: number, _: Segment[]) => ix == 0 ? Tip.Extend : Tip.Contract;
+
         this.rooms.forEach(room => {
             const drawRoomWalls = (direction: Direction) => {
                 this.edges.getRoomEdge(room, this.corridors, direction).segments.forEach(
-                    this.drawWalls(room.rect, room.color, direction));
+                    this.drawWalls(room.rect, room.color, direction, roomStartTip, roomEndTip));
             }
 
             drawRoomWalls(Direction.West);
@@ -124,7 +128,23 @@ export class DungeonMap {
             drawRoomWalls(Direction.South);
         });
 
+        
         this.corridors.forEach(corridor => {
+            const corridorStartTip = (s: Segment, ix: number, _: Segment[]) => {
+                if (!this.isTraversable(s.from-1, corridor.rect.y1 -1))
+                    return Tip.Extend;
+                else
+                    return Tip.Contract;
+            }
+            const corridorEndTip = (s: Segment, ix: number, all: Segment[]) => {
+                
+                if (this.isTraversable(s.to + 1, corridor.rect.y1))
+                    return Tip.Contract;
+                else if (this.isTraversable(s.to + 1, corridor.rect.y1))
+                    return Tip.Flat;
+                else
+                    return Tip.Extend;
+            }
             const color = Colors.BlueGrey.color();
             const drawCorridorWalls = (direction: Direction) => {
                 this.edges.getCorridorEdge(corridor, this.rooms, direction)
@@ -133,13 +153,13 @@ export class DungeonMap {
                     return !this.isTraversable(s.from, corridor.rect.y1 - 1)
                 })
                 .forEach(
-                    this.drawWalls(corridor.rect, color, direction));
+                    this.drawWalls(corridor.rect, color, direction, corridorStartTip, corridorEndTip));
             }
             drawCorridorWalls(Direction.North);
         });
     }
 
-    private drawWalls(baseRect: Rect, color: Color, direction: Direction) {
+    private drawWalls(baseRect: Rect, color: Color, direction: Direction, startTip: TipFunction, endTip: TipFunction) {
         return (s: Segment, ix: number, all: Segment[]) => {
             let wallRect: Rect;
             switch (direction) {
@@ -155,7 +175,10 @@ export class DungeonMap {
                 }
             }
 
-            const g = this.wallBuilder.build(wallRect, color, ix == 0 ? Tip.Extend : Tip.Contract, ix == all.length - 1 ? Tip.Extend : Tip.Contract, direction);
+            const g = this.wallBuilder.build(wallRect, color, 
+                startTip(s, ix, all), 
+                endTip(s, ix, all), 
+                direction);
             this.view.addChild(g);
         };
     }
@@ -168,3 +191,7 @@ export class DungeonMap {
         return this.data[x * this.height + y];
     }  
 }
+
+type TipFunction = (s: Segment, index: number, all: Segment[]) => Tip;
+
+ 
