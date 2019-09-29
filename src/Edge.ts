@@ -67,6 +67,10 @@ export class Edge {
                 const from = p1;
                 const to = p2;
                 this._segments.splice(i + 1, 0, new SegmentPoint(from, type), new SegmentPoint(to, this._segments[i].type));
+                if (this._segments[this._segments.length-1].point == this._segments[this._segments.length-2].point) {
+                    this._segments.pop();
+                }
+
                 return;
             }
         }

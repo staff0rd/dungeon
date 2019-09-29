@@ -44,9 +44,22 @@ describe ("EdgeManager", () => {
 
             expect(edge.segments.length).toBe(2);
         });
-        test('shoud join seed 95168 map 60x40 corridors 12 & 13 correctly', () => {
+        test('shoud join seed 95168 corridors 12 & 13 correctly', () => {
             const result = getMapEdges(95168, Direction.Top, (r) => r.top == 28);
-            expect(result.length).toBe(1);
+            expect(result.joined.length).toBe(1);
+        });
+        test('shoud split seed 95168 corridor 17 correctly', () => {
+            const result = getMapEdges(95168, Direction.Top, (r) => r.top == 26);
+            result.joined.forEach(r => {
+                console.log(r.toString())
+            })
+            expect(result.joined.length).toBe(2);
+        });
+        test('should have one segment for seed 95168 corridor 17', () => {
+            const result = getMapEdges(95168, Direction.Top, (r) => r.top == 26);
+            const edge = result.edges.filter(e => e.end == 37)[0];
+            console.log(edge.toString());
+            expect(edge.segmentPoints.length).toBe(3);
         });
     });
 });
@@ -58,9 +71,7 @@ function getMapEdges(seed: number, direction: Direction, selectEdge: (r: Rect) =
     map.setSeed(seed);
     map.createMap();
     map.buildCorridors();
-    let edges = map.corridors.map(corridor => edgeManager.getCorridorEdge(corridor, [], map.corridors.map(c => c.rect), direction));
-    edges = edgeManager.join(edges, selectEdge);
-    const result = edges.filter(e => selectEdge(e.rect));
-    return result;
+    const edges = map.corridors.map(corridor => edgeManager.getCorridorEdge(corridor, [], map.corridors.map(c => c.rect), direction));
+    const joined = edgeManager.join(edges, selectEdge);
+    return { edges: edges.filter(e => selectEdge(e.rect)), joined: joined.filter(e => selectEdge(e.rect)) };
 }
-
