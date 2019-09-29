@@ -36,6 +36,13 @@ export class EdgeManager {
         }
         return edge;
     }
+
+    getCorridorEdges(corridors: CorridorView[], direction: Direction, rooms: RoomView[]) {
+        let edges = corridors
+            .map(corridor => this.getCorridorEdge(corridor, rooms, corridors.map(c => c.rect), direction));
+        return this.join(edges);
+    }
+
     private getEdge(baseRect: Rect, rects: Rect[], direction: Direction) {
         let edge: Edge, intersections: Rect[], edgeInserter: (rect: Rect) => void;
         switch (direction) {

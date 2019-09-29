@@ -57,7 +57,11 @@ export class DungeonMap {
 
         this.drawDoors();
 
-        this.placeWalls();
+        if (!this.config.hideWalls) {
+            this.placeRoomWalls();
+            
+            this.placeCorridorWalls();
+        }
 
         this.drawPassable();
 
@@ -164,41 +168,26 @@ export class DungeonMap {
         this.view.addChild(text);
     }
 
-    private placeWalls() {
-        if (this.config.hideWalls)
-            return;
-
-        this.placeRoomWalls();
-
-        let northEdges = this.corridors
-            //.filter(c => c.number == 12 || c.number == 13)
-            .map(corridor => this.edgeManager.getCorridorEdge(corridor, this.rooms, this.corridors.map(c => c.rect), Direction.Top));
-
-        northEdges = this.edgeManager.join(northEdges);
-
-        const color = Colors.BlueGrey.color();
-       
-        const drawCorridorWalls = (edges: Edge[], direction: Direction) => {
+    private placeCorridorWalls() {
+        const drawCorridorWalls = (direction: Direction) => {
+            const color = Colors.BlueGrey.color();
+            const edges = this.edgeManager.getCorridorEdges(this.corridors, direction, this.rooms);
             edges.forEach(edge => {
                 edge.segments
-                .filter(s => {
-                    switch (direction) {
-                        case Direction.Top:
-                            return !this.isTraversable(s.from, edge.rect.y1 - 1);
-                        case Direction.Bottom:
-                            return !this.isTraversable(s.from, edge.rect.y1 + 1);
-                    }
-                    return true;
-                })
-                .forEach(
-                    this.drawWalls(edge, color, direction, corridorStartTip, corridorEndTip));
-            })
-        }
-        drawCorridorWalls(northEdges, Direction.Top);
-        //     // drawCorridorWalls(Direction.East);
-        //     // drawCorridorWalls(Direction.South);
-        //     // drawCorridorWalls(Direction.West);
-        // };
+                    .filter(s => {
+                        switch (direction) {
+                            case Direction.Top:
+                                return !this.isTraversable(s.from, edge.rect.y1 - 1);
+                            case Direction.Bottom:
+                                return !this.isTraversable(s.from, edge.rect.y1 + 1);
+                        }
+                        return true;
+                    })
+                    .forEach(this.drawWalls(edge, color, direction, corridorStartTip, corridorEndTip));
+            });
+        };
+        drawCorridorWalls(Direction.Top);
+        drawCorridorWalls(Direction.Bottom);
     }
 
     private placeRoomWalls() {
