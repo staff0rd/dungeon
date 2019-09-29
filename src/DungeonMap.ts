@@ -173,17 +173,7 @@ export class DungeonMap {
             const color = Colors.BlueGrey.color();
             const edges = this.edgeManager.getCorridorEdges(this.corridors, direction, this.rooms);
             edges.forEach(edge => {
-                edge.segments
-                    .filter(s => {
-                        switch (direction) {
-                            case Direction.Top:
-                                return !this.isTraversable(s.from, edge.rect.y1 - 1);
-                            case Direction.Bottom:
-                                return !this.isTraversable(s.from, edge.rect.y1 + 1);
-                        }
-                        return true;
-                    })
-                    .forEach(this.drawWalls(edge, color, direction, corridorStartTip, corridorEndTip));
+                edge.segments.forEach(this.drawWalls(edge, color, direction, corridorStartTip, corridorEndTip));
             });
         };
         drawCorridorWalls(Direction.Top);

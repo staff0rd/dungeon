@@ -40,6 +40,19 @@ export class Rect {
         }
     }
 
+    adjacent(rect: Rect, direction: Direction) {
+        switch (direction) {
+            case Direction.Top: 
+            case Direction.Bottom: {
+                
+            }
+            case Direction.Left:
+            case Direction.Right: {
+
+            }
+        }
+    }
+
     from(direction:Direction) {
         switch (direction) {
             case Direction.Top:

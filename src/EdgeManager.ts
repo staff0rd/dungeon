@@ -1,5 +1,5 @@
 import { Structure } from "./Structure";
-import { between } from "./between";
+import { overlap } from "./overlap";
 import { Rect } from "./core/Rect";
 import { RoomView } from "./RoomView";
 import { CorridorView } from "./CorridorView";
@@ -25,15 +25,6 @@ export class EdgeManager {
             .concat([].concat(...doors))
             .concat(corridorsToCheckIntersect);
         const edge = this.getEdge(corridor.rect, rects, direction);
-        switch (direction) {
-            case Direction.Top: {
-                // if (this.canTraverse(edge.end -1, corridor.rect.y1 - 1)) {
-                //     console.log('wind it back');
-                //     edge.end--;
-                // }
-                break;
-            }
-        }
         return edge;
     }
 
@@ -50,14 +41,14 @@ export class EdgeManager {
             case Direction.Left: {
                 edge = new Edge(baseRect, direction, Structure.Room);
                 edgeInserter = (rect: Rect) => edge.insert(rect.y1, rect.y2, Structure.Corridor);
-                intersections = rects.filter(rect => rect.height == 1 && between(rect.y1, baseRect.y1, baseRect.y2));
+                intersections = rects.filter(rect => rect.height == 1 && overlap(rect.y1, rect.y2, baseRect.y1, baseRect.y2));
                 break;
             }
             case Direction.Top:
             case Direction.Bottom: {
                 edge = new Edge(baseRect, direction, Structure.Room);
                 edgeInserter = (rect: Rect) => edge.insert(rect.x1, rect.x2, Structure.Corridor);
-                intersections = rects.filter(rect => rect.width == 1 && between(rect.x1, baseRect.x1, baseRect.x2));
+                intersections = rects.filter(rect => overlap(rect.x1, rect.x2, baseRect.x1, baseRect.x2));
                 break;
             }
         }
@@ -79,13 +70,20 @@ export class EdgeManager {
                 break;
             }
         }
+        if (baseRect.bottom == 2) {
+            console.log(edge.toString())
+            console.log(intersections);
+        }
         intersections.forEach(edgeInserter);
+        if (baseRect.bottom == 2)
+            console.log(edge.toString());
         return edge;
     }
 
     join(edges: Edge[], debugFocusOn: (r: Rect) => boolean = undefined): Edge[] {
         if (edges.length == 1)
             return edges;
+        edges = edges.filter(e => e.segmentPoints.length);
         for (let i = 0; i < edges.length;i++) {
             const first = edges[i];
             const notEqual = edges.filter(e => !e.rect.equals(first.rect));

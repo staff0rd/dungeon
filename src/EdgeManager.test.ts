@@ -55,6 +55,15 @@ describe ("EdgeManager", () => {
             })
             expect(result.joined.length).toBe(2);
         });
+        test('should remove segments that end on corridors', () => {
+            const result = getMapEdges(95168, Direction.Top, (r) => r.top == 2);
+            expect(result.joined.length).toBe(0);
+        });
+        test('should trim segments that overlaps', () => {
+            const result = getMapEdges(95168, Direction.Bottom, (r) => r.bottom == 2);
+            result.joined.forEach(e => console.log(e.toString()));
+            expect(result.joined.length).toBe(1);
+        })
         test('should have one segment for seed 95168 corridor 17', () => {
             const result = getMapEdges(95168, Direction.Top, (r) => r.top == 26);
             const edge = result.edges.filter(e => e.end == 37)[0];

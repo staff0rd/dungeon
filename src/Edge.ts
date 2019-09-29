@@ -62,6 +62,14 @@ export class Edge {
     }
 
     insert(p1: number, p2: number, type: Structure) {
+        if (!this._segments.length)
+            return;
+
+        if (p1 <= this.start && p2 >= this.end) {
+            this._segments = [];
+            return;
+        }
+        
         for (let i = 0; i < this._segments.length; i++){
             if (!this._segments[i+1] || this._segments[i+1].point > p1) {
                 const from = p1;
@@ -69,6 +77,9 @@ export class Edge {
                 this._segments.splice(i + 1, 0, new SegmentPoint(from, type), new SegmentPoint(to, this._segments[i].type));
                 if (this._segments[this._segments.length-1].point == this._segments[this._segments.length-2].point) {
                     this._segments.pop();
+                }
+                if (this._segments[0].point == this._segments[1].point) {
+                    this._segments.shift();
                 }
 
                 return;
