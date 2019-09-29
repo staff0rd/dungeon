@@ -1,5 +1,5 @@
 import { Color, ColorUtils } from './core/Colors';
-import { Direction } from './Direction';
+import { Direction } from './core/Direction';
 import { GradientColorPoint } from './GradientColorPoint';
 import * as PIXI from "pixi.js";
 
@@ -10,7 +10,7 @@ export class GradientCalculator {
     private getStops(direction: Direction, color: Color): GradientColorPoint {
         const shade1 = ColorUtils.toHtml(color.shades[ROOM_WALL_TO_INDEX].shade);
         const shade2 = ColorUtils.toHtml(color.shades[ROOM_WALL_FROM_INDEX].shade);
-        if (direction == Direction.East || direction == Direction.South) {
+        if (direction == Direction.Right || direction == Direction.Bottom) {
             return { start: shade1, stop: shade2 };
         }
         else {

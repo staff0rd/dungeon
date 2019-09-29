@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js"
 import { Random } from './core//Random';
-import { RNG } from "rot-js";
 import { Analytics } from "./core/Analytics"
 import { DungeonMap } from "./DungeonMap";
 import { Colors } from './core/Colors';
@@ -15,12 +14,12 @@ export class Game {
     private lastPoint: Point<any>;
     private config: Config;
 
-    constructor(config:Config, pixi: PIXI.Application) {
+    constructor(config: Config, pixi: PIXI.Application) {
         this.pixi = pixi;
         this.config = config;
         this.initInteraction();
 
-        this.dungeonMap = new DungeonMap(60, 30, config.roomNumbers, config.scale, config.hideWalls);
+        this.dungeonMap = new DungeonMap(config);
         
         this.initPointer();
 
@@ -61,16 +60,11 @@ export class Game {
         const point = this.dungeonMap.getPoint(x,y);
         if (point != this.lastPoint) {
             this.pointerBlock.position.set(x, y);
-            console.log(point);
             this.lastPoint = point;
         }
     }
 
-    setSeed() {
-        const seed = this.config.seed || Random.between(1, 100000);
-
-        RNG.setSeed(seed);
-
+    drawSeed(seed: number) {
         var text = new PIXI.Text(seed.toString());
         text.position.set(10, window.innerHeight - text.height - 10);
         this.pixi.stage.addChild(text);
@@ -82,9 +76,11 @@ export class Game {
         this.pixi.stage.removeChildren();
         this.pixi.stage.addChild(this.interactionHitBox);
         
-        this.setSeed();
+        const seed = this.config.seed || Random.between(1, 100000)
+
+        this.drawSeed(seed);
         
-        this.dungeonMap.generate();
+        this.dungeonMap.generate(seed);
 
         const startingRoom = Random.pick(this.dungeonMap.rooms);
 

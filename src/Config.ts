@@ -1,8 +1,11 @@
-import { Browser } from './core/Browser'
-
 export class Config {
-    seed =  Browser.getQueryNumber("seed");
-    roomNumbers = Browser.getQueryBoolean("roomNumbers", false);
+    seed?: number;
+    roomNumbers = false;
+    corridorNumbers = false;
+    passable = false;
     scale = 20;
-    hideWalls = Browser.getQueryBoolean("hideWalls", false);
+    hideWalls = false;
+    corridor?: number;
+    width = 60;
+    height = 30;
 }

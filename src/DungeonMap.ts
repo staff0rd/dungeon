@@ -1,4 +1,4 @@
-import { Map } from "rot-js";
+import { Map, RNG } from "rot-js";
 import { default as Dungeon } from 'rot-js/lib/map/dungeon'
 import * as PIXI from "pixi.js";
 import { Colors , ColorUtils, Color} from './core/Colors'
@@ -8,10 +8,12 @@ import { RoomView } from "./RoomView";
 import { CorridorView } from "./CorridorView";
 import { Tip } from "./Tip";
 import { Segment } from "./Segment";
-import { Direction } from "./Direction";
+import { Direction } from "./core/Direction";
 import { WallBuilder } from './WallBuilder';
 import { EdgeManager } from "./EdgeManager";
-import { isTryStatement } from "@babel/types";
+import { Config } from "./Config";
+import { Edge } from "./Edge";
+import { corridorEndTip, corridorStartTip } from "./corridorTip";
 
 const ROOM_SHADE_INDEX = 3;
 
@@ -23,32 +25,86 @@ export class DungeonMap {
     private map: Dungeon;
     private width: number;
     private height: number;
-    private showRoomNumbers: boolean;
     private scale: number;
-    private hideWalls: boolean;
     private wallBuilder: WallBuilder;
-    private edges: EdgeManager;
+    private edgeManager: EdgeManager;
+    private config: Config;
 
-    constructor(width: number, height: number, showRoomNumbers: boolean, scale: number, hideWalls: boolean) {
-        this.width = width;
-        this.height = height;
-        this.scale = scale;
+    constructor(config: Config) {
+        this.width = config.width;
+        this.height = config.height;
+        this.scale = config.scale;
         this.wallBuilder = new WallBuilder(this.scale);
-        this.showRoomNumbers = showRoomNumbers;
-        this.hideWalls = hideWalls;
         this.view = new PIXI.Container();
-        this.edges = new EdgeManager();
+        this.edgeManager = new EdgeManager((x, y) => this.isTraversable(x, y));
+        this.config = config;
     }
 
-    generate() {
+    setSeed(seed: number) {
+        RNG.setSeed(seed);
+    }
+
+    generate(seed: number) {
+        this.setSeed(seed);
+        
         this.view.removeChildren();
+        
+        this.createMap();
 
-        this.map = new Map.Digger(this.width, this.height, {});
-        this.data = [];
-        this.map.create((x: number, y: number, value: number ) => {
-            this.data.push({x, y, value});
+        this.buildRooms();
+
+        this.buildCorridors();
+
+        this.drawDoors();
+
+        this.placeWalls();
+
+        this.drawPassable();
+
+        this.highlightCorridor();
+    }
+
+    private highlightCorridor() {
+        if (this.config.corridor) {
+            const rect = this.corridors[this.config.corridor - 1].rect;
+            const g = new PIXI.Graphics();
+            g.lineStyle(2, Colors.Black);
+            g.drawRect(rect.x * this.scale, rect.y * this.scale, rect.width * this.scale, rect.height * this.scale);
+            this.view.addChild(g);
+        }
+    }
+
+    private drawDoors() {
+        this.rooms.forEach(room => {
+            room.room.getDoors((x: number, y: number) => {
+                const d = new PIXI.Graphics();
+                d.beginFill(Colors.BlueGrey.C100);
+                d.drawRect(x * this.scale, y * this.scale, 1 * this.scale, 1 * this.scale);
+                d.endFill();
+                room.view.addChild(d);
+            });
         });
+    }
 
+    buildCorridors() {
+        this.corridors = this.map.getCorridors().map((corridor, ix) => {
+            const number = ix + 1;
+            const rect = new Rect(Math.min(corridor._startX, corridor._endX), Math.min(corridor._startY, corridor._endY), Math.abs(corridor._endX - corridor._startX) + 1, Math.abs(corridor._endY - corridor._startY) + 1);
+            const view = new PIXI.Container();
+            const g = new PIXI.Graphics();
+            g.beginFill(Colors.BlueGrey.C500);
+            g.drawRect(rect.x1 * this.scale, rect.y1 * this.scale, rect.width * this.scale, rect.height * this.scale);
+            g.endFill();
+            view.addChild(g);
+            this.view.addChild(view);
+            if (this.config.corridorNumbers) {
+                this.addNumber(rect, number, 12);
+            }
+            return { corridor, view, rect, number };
+        });
+    }
+
+    private buildRooms() {
         this.rooms = this.map.getRooms().map((room, ix) => {
             const x = room.getLeft();
             const y = room.getTop();
@@ -61,130 +117,132 @@ export class DungeonMap {
             g.drawRect(x * this.scale, y * this.scale, width * this.scale, height * this.scale);
             g.endFill();
             view.addChild(g);
-
             const number = ix + 1;
-
             this.view.addChild(view);
-
-            if (this.showRoomNumbers) {
-                const roomNumber = new PIXI.Text(number.toString());
-                roomNumber.position.set((x + width / 2) * this.scale, (y + height / 2) * this.scale);
-                roomNumber.pivot.set(roomNumber.width/2, roomNumber.height/2);
-                this.view.addChild(roomNumber);
-            }
-
             const rect = new Rect(x, y, width, height);
-
+            if (this.config.roomNumbers) {
+                this.addNumber(rect, number);
+            }
             const result = { room, view, number, rect, color };
             return result;
         });
+    }
 
-        this.corridors = this.map.getCorridors().map(corridor => {
-            const rect = new Rect(
-                Math.min(corridor._startX, corridor._endX),
-                Math.min(corridor._startY, corridor._endY),
-                Math.abs(corridor._endX - corridor._startX) + 1,
-                Math.abs(corridor._endY - corridor._startY) + 1
-            );
-            const view = new PIXI.Container();
-            const g = new PIXI.Graphics();
-            g.beginFill(Colors.BlueGrey.C500);
-            g.drawRect(rect.x1 * this.scale, rect.y1 * this.scale, rect.width * this.scale, rect.height * this.scale);
-            g.endFill();
-            view.addChild(g);
-            this.view.addChild(view);
-            return { corridor, view, rect };
+    createMap() {
+        this.map = new Map.Digger(this.width, this.height, {});
+        this.data = [];
+        this.map.create((x: number, y: number, value: number) => {
+            this.data.push({ x, y, value });
         });
+    }
 
-        this.rooms.forEach(room => {
-            room.room.getDoors((x: number, y: number) => {
-                const d = new PIXI.Graphics();
-                d.beginFill(Colors.BlueGrey.C100);
-                d.drawRect(x * this.scale, y * this.scale, 1 * this.scale, 1 * this.scale);
-                d.endFill();
-                room.view.addChild(d);
-            });
-        });
+    private drawPassable() {
+        if (this.config.passable) {
+            const fontSize = 10;
+            const color = Colors.White;
+            const alpha = .25;
+            for (let x = 0; x < this.width; x++) {
+                for (let y = 0; y < this.height; y++) {
+                    if (x == 0 || x == this.width - 1) {
+                        this.addNumber(new Rect(x, y, 1, 1), y, fontSize, color, alpha);
+                    } else if (y == 0 || y == this.height - 1) {
+                        this.addNumber(new Rect(x, y, 1, 1), x, fontSize, color, alpha);
+                    } else {
+                        const value = this.getPoint(x, y).value;
+                        this.addNumber(new Rect(x, y, 1, 1), value, fontSize, color, alpha);
+                    }
+                }
+            }
+        }
+    }
 
-        this.placeWalls();
+    private addNumber(rect: Rect, number: number, fontSize = 20, color: number = Colors.Black, alpha = 1) {
+        const text = new PIXI.Text(number.toString(), { fontSize: fontSize, fill: color });
+        text.alpha = alpha;
+        text.position.set((rect.x + rect.width / 2) * this.scale, (rect.y + rect.height / 2) * this.scale);
+        text.pivot.set(text.width / 2, text.height / 2);
+        this.view.addChild(text);
     }
 
     private placeWalls() {
-        if (this.hideWalls)
+        if (this.config.hideWalls)
             return;
 
-        const roomEndTip = (s: Segment, ix: number, all: Segment[]) => ix == all.length - 1 ? Tip.Extend : Tip.Contract;
-        const roomStartTip = (s: Segment, ix: number, _: Segment[]) => ix == 0 ? Tip.Extend : Tip.Contract;
+        this.placeRoomWalls();
 
-        this.rooms.forEach(room => {
-            const drawRoomWalls = (direction: Direction) => {
-                this.edges.getRoomEdge(room, this.corridors, direction).segments.forEach(
-                    this.drawWalls(room.rect, room.color, direction, roomStartTip, roomEndTip));
-            }
+        let northEdges = this.corridors
+            //.filter(c => c.number == 12 || c.number == 13)
+            .map(corridor => this.edgeManager.getCorridorEdge(corridor, this.rooms, this.corridors.map(c => c.rect), Direction.Top));
 
-            drawRoomWalls(Direction.West);
-            drawRoomWalls(Direction.East);
-            drawRoomWalls(Direction.North);
-            drawRoomWalls(Direction.South);
-        });
+        northEdges = this.edgeManager.join(northEdges);
 
-        
-        this.corridors.forEach(corridor => {
-            const corridorStartTip = (s: Segment, ix: number, _: Segment[]) => {
-                if (!this.isTraversable(s.from-1, corridor.rect.y1 -1))
-                    return Tip.Extend;
-                else
-                    return Tip.Contract;
-            }
-            const corridorEndTip = (s: Segment, ix: number, all: Segment[]) => {
-                
-                if (this.isTraversable(s.to + 1, corridor.rect.y1))
-                    return Tip.Contract;
-                else if (this.isTraversable(s.to + 1, corridor.rect.y1))
-                    return Tip.Flat;
-                else
-                    return Tip.Extend;
-            }
-            const color = Colors.BlueGrey.color();
-            const drawCorridorWalls = (direction: Direction) => {
-                this.edges.getCorridorEdge(corridor, this.rooms, direction)
-                .segments
+        const color = Colors.BlueGrey.color();
+       
+        const drawCorridorWalls = (edges: Edge[], direction: Direction) => {
+            edges.forEach(edge => {
+                edge.segments
                 .filter(s => {
-                    return !this.isTraversable(s.from, corridor.rect.y1 - 1)
+                    switch (direction) {
+                        case Direction.Top:
+                            return !this.isTraversable(s.from, edge.rect.y1 - 1);
+                        case Direction.Bottom:
+                            return !this.isTraversable(s.from, edge.rect.y1 + 1);
+                    }
+                    return true;
                 })
                 .forEach(
-                    this.drawWalls(corridor.rect, color, direction, corridorStartTip, corridorEndTip));
-            }
-            drawCorridorWalls(Direction.North);
+                    this.drawWalls(edge, color, direction, corridorStartTip, corridorEndTip));
+            })
+        }
+        drawCorridorWalls(northEdges, Direction.Top);
+        //     // drawCorridorWalls(Direction.East);
+        //     // drawCorridorWalls(Direction.South);
+        //     // drawCorridorWalls(Direction.West);
+        // };
+    }
+
+    private placeRoomWalls() {
+        const roomEndTip = (s: Segment, ix: number, edge: Edge) => ix == edge.segments.length - 1 ? Tip.Extend : Tip.Contract;
+        const roomStartTip = (s: Segment, ix: number, _: Edge) => ix == 0 ? Tip.Extend : Tip.Contract;
+        this.rooms.forEach(room => {
+            const drawRoomWalls = (direction: Direction) => {
+                const edge = this.edgeManager.getRoomEdge(room, this.corridors, direction);
+                edge.segments.forEach(this.drawWalls(edge, room.color, direction, roomStartTip, roomEndTip));
+            };
+            drawRoomWalls(Direction.Left);
+            drawRoomWalls(Direction.Right);
+            drawRoomWalls(Direction.Top);
+            drawRoomWalls(Direction.Bottom);
         });
     }
 
-    private drawWalls(baseRect: Rect, color: Color, direction: Direction, startTip: TipFunction, endTip: TipFunction) {
+    private drawWalls(edge: Edge, color: Color, direction: Direction, startTip: TipFunction, endTip: TipFunction) {
         return (s: Segment, ix: number, all: Segment[]) => {
             let wallRect: Rect;
             switch (direction) {
-                case Direction.East:
-                case Direction.West: {
-                    wallRect = new Rect(baseRect.x1, s.from, baseRect.width, s.to - s.from);
+                case Direction.Right:
+                case Direction.Left: {
+                    wallRect = new Rect(edge.rect.x1, s.from, edge.rect.width, s.to - s.from);
                     break;
                 }
-                case Direction.North:
-                case Direction.South: {
-                    wallRect = new Rect(s.from, baseRect.y1, s.to - s.from, baseRect.height);
+                case Direction.Top:
+                case Direction.Bottom: {
+                    wallRect = new Rect(s.from, edge.rect.y1, s.to - s.from, edge.rect.height);
                     break;
                 }
             }
 
             const g = this.wallBuilder.build(wallRect, color, 
-                startTip(s, ix, all), 
-                endTip(s, ix, all), 
+                startTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
+                endTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
                 direction);
             this.view.addChild(g);
         };
     }
 
-    private isTraversable(x: number, y: number) {
-        return !this.getPoint(x, y).value;
+    isTraversable(x: number, y: number) {
+        const point = this.getPoint(x, y); 
+        return !point.value;
     }
 
     getPoint(x: number, y: number) {
@@ -192,6 +250,6 @@ export class DungeonMap {
     }  
 }
 
-type TipFunction = (s: Segment, index: number, all: Segment[]) => Tip;
+type TipFunction = (s: Segment, index: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => Tip;
 
  

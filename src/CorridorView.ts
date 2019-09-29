@@ -5,4 +5,5 @@ export type CorridorView = {
     view: PIXI.Container;
     corridor: Corridor;
     rect: Rect;
+    number: number;
 };
