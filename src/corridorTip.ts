@@ -19,6 +19,7 @@ export const corridorStartTip = (s: Segment, ix: number, edge: Edge, direction: 
                 } else return Tip.Contract;
             } else return Tip.Extend;
         }
+        case Direction.Right:
         case Direction.Left: {
             if (isTraversable(edge.rect.left, s.from -1)) {
                 return Tip.Contract
@@ -44,6 +45,7 @@ export const corridorEndTip = (s: Segment, ix: number, edge: Edge, direction: Di
                 } else return Tip.Contract;
             } else return Tip.Extend;
         }
+        case Direction.Right:
         case Direction.Left: {
             if (isTraversable(edge.rect.left, s.to)) {
                 return Tip.Contract

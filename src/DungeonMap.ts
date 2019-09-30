@@ -179,6 +179,7 @@ export class DungeonMap {
         drawCorridorWalls(Direction.Top);
         drawCorridorWalls(Direction.Bottom);
         drawCorridorWalls(Direction.Left);
+        drawCorridorWalls(Direction.Right);
     }
 
     private placeRoomWalls() {
