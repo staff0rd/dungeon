@@ -3,7 +3,10 @@ import { Segment } from "./Segment";
 import { Direction } from "./core/Direction";
 import { Edge } from "./Edge";
 
-export const corridorStartTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
+// TODO: 37261
+// TODO: 79771
+
+export const StartTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
     switch (direction) {
         case Direction.Top: {
             if (isTraversable(s.from- 1, edge.rect.top - 1)){
@@ -19,17 +22,20 @@ export const corridorStartTip = (s: Segment, ix: number, edge: Edge, direction: 
                 } else return Tip.Contract;
             } else return Tip.Extend;
         }
-        case Direction.Right:
         case Direction.Left: {
-            if (isTraversable(edge.rect.left, s.from -1)) {
+            if (isTraversable(edge.rect.left -1, s.from -1)) {
                 return Tip.Contract
-            }
+            } else return Tip.Extend;
+        }
+        case Direction.Right: {
+            if (isTraversable(edge.rect.right, s.from -1)) {
+                return Tip.Contract
+            } else return Tip.Extend;
         }
     }
-    return Tip.Extend;
 };
 
-export const corridorEndTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
+export const EndTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
     switch (direction) {
         case (Direction.Top): {
             if (isTraversable(s.to, edge.rect.top - 1)) {
@@ -45,13 +51,17 @@ export const corridorEndTip = (s: Segment, ix: number, edge: Edge, direction: Di
                 } else return Tip.Contract;
             } else return Tip.Extend;
         }
-        case Direction.Right:
         case Direction.Left: {
-            if (isTraversable(edge.rect.left, s.to)) {
+            if (isTraversable(edge.rect.left-1, s.to)) {
+                return Tip.Contract
+            } else
+                return Tip.Extend
+        }
+        case Direction.Right: {
+            if (isTraversable(edge.rect.right, s.to)) {
                 return Tip.Contract
             } else
                 return Tip.Extend
         }
     }
-    return Tip.Flat;
 };

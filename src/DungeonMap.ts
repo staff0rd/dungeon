@@ -13,7 +13,7 @@ import { WallBuilder } from './WallBuilder';
 import { EdgeManager } from "./EdgeManager";
 import { Config } from "./Config";
 import { Edge } from "./Edge";
-import { corridorEndTip, corridorStartTip } from "./corridorTip";
+import { EndTip, StartTip } from "./WallTip";
 
 const ROOM_SHADE_INDEX = 3;
 
@@ -173,22 +173,20 @@ export class DungeonMap {
             const color = Colors.BlueGrey.color();
             const edges = this.edgeManager.getCorridorEdges(this.corridors, direction, this.rooms);
             edges.forEach(edge => {
-                edge.segments.forEach(this.drawWalls(edge, color, direction, corridorStartTip, corridorEndTip));
+                edge.segments.forEach(this.drawWalls(edge, color, direction));
             });
         };
+        drawCorridorWalls(Direction.Left);
         drawCorridorWalls(Direction.Top);
         drawCorridorWalls(Direction.Bottom);
-        drawCorridorWalls(Direction.Left);
         drawCorridorWalls(Direction.Right);
     }
 
     private placeRoomWalls() {
-        const roomEndTip = (s: Segment, ix: number, edge: Edge) => ix == edge.segments.length - 1 ? Tip.Extend : Tip.Contract;
-        const roomStartTip = (s: Segment, ix: number, _: Edge) => ix == 0 ? Tip.Extend : Tip.Contract;
         this.rooms.forEach(room => {
             const drawRoomWalls = (direction: Direction) => {
                 const edge = this.edgeManager.getRoomEdge(room, this.corridors, direction);
-                edge.segments.forEach(this.drawWalls(edge, room.color, direction, roomStartTip, roomEndTip));
+                edge.segments.forEach(this.drawWalls(edge, room.color, direction));
             };
             drawRoomWalls(Direction.Left);
             drawRoomWalls(Direction.Right);
@@ -197,7 +195,7 @@ export class DungeonMap {
         });
     }
 
-    private drawWalls(edge: Edge, color: Color, direction: Direction, startTip: TipFunction, endTip: TipFunction) {
+    private drawWalls(edge: Edge, color: Color, direction: Direction) {
         return (s: Segment, ix: number, all: Segment[]) => {
             let wallRect: Rect;
             switch (direction) {
@@ -214,8 +212,8 @@ export class DungeonMap {
             }
 
             const g = this.wallBuilder.build(wallRect, color, 
-                startTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
-                endTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
+                StartTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
+                EndTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
                 direction);
             this.view.addChild(g);
         };
@@ -232,5 +230,3 @@ export class DungeonMap {
 }
 
 type TipFunction = (s: Segment, index: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => Tip;
-
- 
