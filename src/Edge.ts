@@ -3,6 +3,7 @@ import { Structure } from "./Structure";
 import { Segment } from "./Segment";
 import { Rect } from "./core/Rect";
 import { Direction } from "./core/Direction";
+import { endianness } from "os";
 
 export class Edge {
     get segmentPoints() {
@@ -17,7 +18,6 @@ export class Edge {
         this._segments.pop();
         second.segmentPoints.shift();
         this._segments = this._segments.concat(second.segmentPoints);
-        //console.log(this.toString())
     }
 
     private _segments: SegmentPoint[];
@@ -69,20 +69,34 @@ export class Edge {
             this._segments = [];
             return;
         }
-        
-        for (let i = 0; i < this._segments.length; i++){
-            if (!this._segments[i+1] || this._segments[i+1].point > p1) {
-                const from = p1;
-                const to = p2;
-                this._segments.splice(i + 1, 0, new SegmentPoint(from, type), new SegmentPoint(to, this._segments[i].type));
-                if (this._segments[this._segments.length-1].point == this._segments[this._segments.length-2].point) {
-                    this._segments.pop();
+        if (p1 <= this.start) {
+            while (this.start <= p2) {
+                this._segments.shift();
+            } 
+            this._segments.unshift(new SegmentPoint(p1, Structure.Gap), new SegmentPoint(p2, this._type));
+        } 
+        else if (p2 >= this.end) {
+            while (this.end >= p1) {
+                this._segments.pop();
+            }
+            this._segments.push(new SegmentPoint(p1, Structure.Gap));
+            this._segments.push(new SegmentPoint(p2, this._type));
+        } 
+        else
+        {
+            for (let i = 0; i < this._segments.length; i++){
+                if (!this._segments[i+1] || this._segments[i+1].point > p1) {
+                    const from = p1;
+                    const to = p2;
+                    this._segments.splice(i + 1, 0, new SegmentPoint(from, type), new SegmentPoint(to, this._segments[i].type));
+                    if (this._segments[this._segments.length-1].point == this._segments[this._segments.length-2].point) {
+                        this._segments.pop();
+                    }
+                    if (this._segments[0].point == this._segments[1].point) {
+                        this._segments.shift();
+                    }
+                    return;
                 }
-                if (this._segments[0].point == this._segments[1].point) {
-                    this._segments.shift();
-                }
-
-                return;
             }
         }
     }

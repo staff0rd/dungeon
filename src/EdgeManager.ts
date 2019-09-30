@@ -70,13 +70,7 @@ export class EdgeManager {
                 break;
             }
         }
-        if (baseRect.bottom == 2) {
-            console.log(edge.toString())
-            console.log(intersections);
-        }
         intersections.forEach(edgeInserter);
-        if (baseRect.bottom == 2)
-            console.log(edge.toString());
         return edge;
     }
 

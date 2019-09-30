@@ -8,7 +8,6 @@ describe ("Edge", () => {
         test('should trim overlaps', () => {
             const edge = new Edge(new Rect(0, 0, 10, 1), Direction.Bottom, Structure.Corridor);
             edge.insert(0, 1, Structure.Corridor);
-            console.log(edge.toString());
             expect(edge.segments.length).toBe(1);
             expect(edge.segments[0].from).toBe(1);
         });
