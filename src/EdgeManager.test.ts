@@ -14,7 +14,6 @@ describe ("EdgeManager", () => {
             const edges = [new Edge(new Rect(1, 0, 1, 1), Direction.Top), new Edge (new Rect(2, 0, 1, 1), Direction.Top)];
             const result = manager.join(edges);
             expect (result.length).toBe(1);
-            console.log(result[0].toString())
             expect(result[0].start).toBe(1);
             expect(result[0].end).toBe(3);
         });
@@ -22,7 +21,6 @@ describe ("EdgeManager", () => {
             const edges = [new Edge (new Rect(2, 0, 1, 1), Direction.Top), new Edge(new Rect(1, 0, 1, 1), Direction.Top)];
             const result = manager.join(edges);
             expect (result.length).toBe(1);
-            console.log(result[0].toString())
             expect(result[0].start).toBe(1);
             expect(result[0].end).toBe(3);
         });
@@ -33,7 +31,6 @@ describe ("EdgeManager", () => {
             expect(edge2.segments.length).toBe(1);
 
             var result = manager.join([edge1, edge2]);
-            result.forEach(r => console.log(r.toString()))
             expect(result.length).toBe(1);
             expect(result[0].segments.length).toBe(2);
         });
@@ -50,9 +47,6 @@ describe ("EdgeManager", () => {
         });
         test('shoud split seed 95168 corridor 17 correctly', () => {
             const result = getMapEdges(95168, Direction.Top, (r) => r.top == 26);
-            result.joined.forEach(r => {
-                console.log(r.toString())
-            })
             expect(result.joined.length).toBe(2);
         });
         test('should remove segments that end on corridors', () => {
@@ -67,7 +61,6 @@ describe ("EdgeManager", () => {
         test('should have one segment for seed 95168 corridor 17', () => {
             const result = getMapEdges(95168, Direction.Top, (r) => r.top == 26);
             const edge = result.edges.filter(e => e.end == 37)[0];
-            console.log(edge.toString());
             expect(edge.segmentPoints.length).toBe(3);
         });
     });
