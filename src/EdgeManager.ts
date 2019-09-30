@@ -41,7 +41,7 @@ export class EdgeManager {
             case Direction.Left: {
                 edge = new Edge(baseRect, direction, Structure.Room);
                 edgeInserter = (rect: Rect) => edge.insert(rect.y1, rect.y2, Structure.Corridor);
-                intersections = rects.filter(rect => rect.height == 1 && overlap(rect.y1, rect.y2, baseRect.y1, baseRect.y2));
+                intersections = rects.filter(rect => overlap(rect.y1, rect.y2, baseRect.y1, baseRect.y2));
                 break;
             }
             case Direction.Top:

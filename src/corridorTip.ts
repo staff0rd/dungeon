@@ -6,11 +6,6 @@ import { Edge } from "./Edge";
 export const corridorStartTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
     switch (direction) {
         case Direction.Top: {
-            if (edge.rect.top == 15) {
-                console.log(edge.toString(), s.from)
-                console.log(s.from- 1, edge.rect.top - 1)
-
-            }
             if (isTraversable(s.from- 1, edge.rect.top - 1)){
                 if (isTraversable(s.from, edge.rect.top-2)) {
                     return Tip.Contract;
@@ -24,8 +19,13 @@ export const corridorStartTip = (s: Segment, ix: number, edge: Edge, direction: 
                 } else return Tip.Contract;
             } else return Tip.Extend;
         }
+        case Direction.Left: {
+            if (isTraversable(edge.rect.left, s.from -1)) {
+                return Tip.Contract
+            }
+        }
     }
-    return Tip.Flat;
+    return Tip.Extend;
 };
 
 export const corridorEndTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
@@ -44,5 +44,12 @@ export const corridorEndTip = (s: Segment, ix: number, edge: Edge, direction: Di
                 } else return Tip.Contract;
             } else return Tip.Extend;
         }
+        case Direction.Left: {
+            if (isTraversable(edge.rect.left, s.to)) {
+                return Tip.Contract
+            } else
+                return Tip.Extend
+        }
     }
+    return Tip.Flat;
 };
