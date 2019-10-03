@@ -3,9 +3,20 @@ import { Structure } from "./Structure";
 import { Segment } from "./Segment";
 import { Rect } from "./core/Rect";
 import { Direction } from "./core/Direction";
-import { endianness } from "os";
 
 export class Edge {
+    endMatchesStart(e: Edge) {
+        return e.start == this.end && this.endSegment.type == e.startSegment.type;
+    }
+    startMatchesEnd(e: Edge) {
+        return this.start == e.end && this.startSegment.type == e.endSegment.type;
+    }
+    get endSegment() {
+        return this._segments[this._segments.length-1];
+    }
+    get startSegment() {
+        return this._segments[0];
+    }
     get segmentPoints() {
         return this._segments;
     }
@@ -25,6 +36,10 @@ export class Edge {
     private _rect: Rect;
     private _direction: Direction;
 
+    get type() {
+        return this._type;
+    }
+
     get rect() {
         return this._rect;
     }
@@ -34,10 +49,12 @@ export class Edge {
     }
 
     get start() {
-        return this._segments[0].point;
+        if (this.segments.length)
+            return this.segments[0].from;
     }
     get end() {
-        return this._segments[this._segments.length - 1].point;
+        if (this.segments.length)
+            return this.segments[this.segments.length - 1].to;
     }
 
     set end(point: number) {

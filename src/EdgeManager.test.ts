@@ -58,11 +58,6 @@ describe ("EdgeManager", () => {
             result.joined.forEach(e => console.log(e.toString()));
             expect(result.joined.length).toBe(1);
         })
-        test('should have one segment for seed 95168 corridor 17', () => {
-            const result = getMapEdges(95168, Direction.Top, (r) => r.top == 26);
-            const edge = result.edges.filter(e => e.end == 37)[0];
-            expect(edge.segmentPoints.length).toBe(3);
-        });
     });
 });
 

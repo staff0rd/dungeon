@@ -18,7 +18,7 @@ export class EdgeManager {
         const rects = getDoors(room).concat(corridors.map(c => c.rect));
         return this.getEdge(room.rect, rects, direction);
     }
-    getCorridorEdge(corridor: CorridorView, rooms: RoomView[], corridorRects: Rect[], direction: Direction) {        
+    getCorridorEdge(corridor: CorridorView, rooms: RoomView[], corridorRects: Rect[], direction: Direction) {      
         const doors = rooms.map(r => getDoors(r));
         const corridorsToCheckIntersect = corridorRects.filter(c => !corridor.rect.equals(c));
         const rects = rooms.map(r => r.rect)
@@ -70,8 +70,7 @@ export class EdgeManager {
                 break;
             }
         }
-        if (baseRect.x == 23 && baseRect.y == 9 && direction == Direction.Bottom)
-            debugger;
+       
         intersections.forEach(edgeInserter);
         return edge;
     }
@@ -79,32 +78,27 @@ export class EdgeManager {
     join(edges: Edge[], debugFocusOn: (r: Rect) => boolean = undefined): Edge[] {
         if (edges.length == 1)
             return edges;
-        edges = edges.filter(e => e.segmentPoints.length);
-        for (let i = 0; i < edges.length;i++) {
-            const first = edges[i];
-            const notEqual = edges.filter(e => !e.rect.equals(first.rect));
-            const aligned = notEqual.filter(e => e.rect.aligned(first.rect, first.direction))// && e.direction == first.direction);
-            const joining = aligned.filter(e => e.start == first.end || e.end == first.start);
+        const nonEmptyEdges = edges.filter(e => e.segmentPoints.length);
+        for (let i = 0; i < nonEmptyEdges.length;i++) {
+            const first = nonEmptyEdges[i];
+            const notEqual = nonEmptyEdges.filter(e => !e.rect.equals(first.rect));
+            const aligned = notEqual.filter(e => e.rect.aligned(first.rect, first.direction))
+            const joining = aligned.filter(e => first.endMatchesStart(e) || first.startMatchesEnd(e));
             if (debugFocusOn && !debugFocusOn(first.rect))
                 continue;
-            //console.log(`first: ${first.toString()}, all: ${edges.length}, notEqual: ${notEqual.length}, aligned: ${aligned.length}, joining: ${joining.length}, ${first.rect.top}`);
             const second = joining[0];
 
             if (second) {
-                //console.log('second', second.toString());
-                //console.log('before', first.toString(), second.toString());
                 if (first.end == second.start) {
                     first.join(second);
-                    //console.log('after', first.toString(), second.toString());
-                    edges.splice(edges.indexOf(second), 1);
+                    nonEmptyEdges.splice(nonEmptyEdges.indexOf(second), 1);
                 } else {
                     second.join(first);
-                    //console.log('after', first.toString(), second.toString());
-                    edges.splice(edges.indexOf(first), 1);
+                    nonEmptyEdges.splice(nonEmptyEdges.indexOf(first), 1);
                 }
-                return this.join(edges);
+                return this.join(nonEmptyEdges);
             }
         }
-        return edges;
+        return nonEmptyEdges;
     }
 }
