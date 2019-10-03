@@ -18,7 +18,7 @@ export class EdgeManager {
         const rects = getDoors(room).concat(corridors.map(c => c.rect));
         return this.getEdge(room.rect, rects, direction);
     }
-    getCorridorEdge(corridor: CorridorView, rooms: RoomView[], corridorRects: Rect[], direction: Direction) {
+    getCorridorEdge(corridor: CorridorView, rooms: RoomView[], corridorRects: Rect[], direction: Direction) {        
         const doors = rooms.map(r => getDoors(r));
         const corridorsToCheckIntersect = corridorRects.filter(c => !corridor.rect.equals(c));
         const rects = rooms.map(r => r.rect)
@@ -48,7 +48,7 @@ export class EdgeManager {
             case Direction.Bottom: {
                 edge = new Edge(baseRect, direction, Structure.Room);
                 edgeInserter = (rect: Rect) => edge.insert(rect.x1, rect.x2, Structure.Corridor);
-                intersections = rects.filter(rect => overlap(rect.x1, rect.x2, baseRect.x1, baseRect.x2));
+                intersections = rects.filter(rect => overlap(baseRect.x1, baseRect.x2, rect.x1, rect.x2));
                 break;
             }
         }
@@ -70,6 +70,8 @@ export class EdgeManager {
                 break;
             }
         }
+        if (baseRect.x == 23 && baseRect.y == 9 && direction == Direction.Bottom)
+            debugger;
         intersections.forEach(edgeInserter);
         return edge;
     }

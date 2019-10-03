@@ -8,4 +8,5 @@ export class Config {
     corridor?: number;
     width = 60;
     height = 30;
+    wallNumbers = false;
 }

@@ -23,6 +23,7 @@ export class App extends React.Component<AppProps, AppState> {
         config.passable = Browser.getQueryBoolean("passable", false);
         config.hideWalls = Browser.getQueryBoolean("hideWalls", false);
         config.corridor = Browser.getQueryNumber("corridor");
+        config.wallNumbers = Browser.getQueryBoolean("wallNumbers", false);
         return config;
     }
     

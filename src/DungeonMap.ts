@@ -21,6 +21,7 @@ export class DungeonMap {
     view: PIXI.Container;
     data: Point<number>[];
     rooms: RoomView[];
+    walls: PIXI.Container;
     corridors: CorridorView[];
     private map: Dungeon;
     private width: number;
@@ -58,9 +59,13 @@ export class DungeonMap {
         this.drawDoors();
 
         if (!this.config.hideWalls) {
+            this.walls = new PIXI.Container();
+
             this.placeRoomWalls();
             
             this.placeCorridorWalls();
+
+            this.view.addChild(this.walls);
         }
 
         this.drawPassable();
@@ -196,6 +201,7 @@ export class DungeonMap {
     }
 
     private drawWalls(edge: Edge, color: Color, direction: Direction) {
+        const number = this.walls.children.length + 1;
         return (s: Segment, ix: number, all: Segment[]) => {
             let wallRect: Rect;
             switch (direction) {
@@ -215,7 +221,15 @@ export class DungeonMap {
                 StartTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
                 EndTip(s, ix, edge, direction, (x, y) => this.isTraversable(x,y)), 
                 direction);
-            this.view.addChild(g);
+
+            this.walls.addChild(g);
+
+            if (this.config.wallNumbers) {
+                const label = new PIXI.Text(number.toString(), {fontSize: 12, fill: Colors.White});
+                label.pivot.set(label.width/2, label.height/2);
+                label.position.set(g.x + g.width/2, g.y + g.height/2);
+                this.walls.addChild(label);
+            }
         };
     }
 
