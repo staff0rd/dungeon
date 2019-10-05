@@ -3,7 +3,7 @@ import { Color, Colors } from './core/Colors';
 import { Tip } from './Tip'
 import * as PIXI from "pixi.js";
 import { Direction } from './core/Direction';
-import { GradientCalculator } from './GradientCalculator';
+import { GradientCalculator } from './core/GradientCalculator';
 
 export class WallBuilder {
     private scale: number;

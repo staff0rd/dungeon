@@ -1,5 +1,4 @@
-export type Point<T> = {
+export type Point = {
     x: number;
     y: number;
-    value: T;
-}
+};

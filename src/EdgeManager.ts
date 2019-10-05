@@ -1,5 +1,5 @@
 import { Structure } from "./Structure";
-import { overlap } from "./overlap";
+import { overlap } from "./core/overlap";
 import { Rect } from "./core/Rect";
 import { RoomView } from "./RoomView";
 import { CorridorView } from "./CorridorView";

@@ -19,6 +19,7 @@ export class Rect {
     public get right() { return this.x2; }
     public get top() { return this.y1; }
     public get bottom() { return this.y2; }
+    public get area() { return this.width * this.height }
 
     constructor(x: number, y: number, width: number, height: number) {
         this._x = x;
@@ -73,5 +74,12 @@ export class Rect {
             case Direction.Right:
             return this.bottom;
         }
+    }
+
+    intersects(rect: Rect) {
+        return this.right > rect.left &&  
+            this.left < rect.right &&
+            this.bottom > rect.top &&
+            this.top < rect.bottom;
     }
 };

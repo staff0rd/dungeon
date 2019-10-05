@@ -1,5 +1,5 @@
-import { Color, ColorUtils } from './core/Colors';
-import { Direction } from './core/Direction';
+import { Color, ColorUtils } from './Colors';
+import { Direction } from './Direction';
 import { GradientColorPoint } from './GradientColorPoint';
 import * as PIXI from "pixi.js";
 

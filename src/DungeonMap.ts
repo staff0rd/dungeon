@@ -1,26 +1,30 @@
-import { Map, RNG } from "rot-js";
-import { default as Dungeon } from 'rot-js/lib/map/dungeon'
 import * as PIXI from "pixi.js";
-import { Colors , ColorUtils, Color} from './core/Colors'
-import { Point } from "./core/Point";
-import { Rect } from "./core/Rect";
-import { RoomView } from "./RoomView";
-import { CorridorView } from "./CorridorView";
-import { Tip } from "./Tip";
-import { Segment } from "./Segment";
-import { Direction } from "./core/Direction";
-import { WallBuilder } from './WallBuilder';
-import { EdgeManager } from "./EdgeManager";
+import { Map, RNG } from "rot-js";
+import { default as Dungeon } from 'rot-js/lib/map/dungeon';
 import { Config } from "./Config";
+import { Color, Colors, ColorUtils } from './core/Colors';
+import { Direction } from "./core/Direction";
+import { PointValue } from "./core/PointValue";
+import { Rect } from "./core/Rect";
+import { CorridorView } from "./CorridorView";
+import { DoorView } from './DoorView';
 import { Edge } from "./Edge";
+import { EdgeManager } from "./EdgeManager";
+import { RoomView } from "./RoomView";
+import { Segment } from "./Segment";
+import { WallBuilder } from './WallBuilder';
 import { EndTip, StartTip } from "./WallTip";
+import { Plane } from "./core/Plane";
+import { Structure } from "./Structure";
+import { Tip } from "./Tip";
 
 const ROOM_SHADE_INDEX = 3;
 
 export class DungeonMap {
     view: PIXI.Container;
-    data: Point<number>[];
+    data: PointValue<number>[];
     rooms: RoomView[];
+    doors: DoorView[];
     walls: PIXI.Container;
     corridors: CorridorView[];
     private map: Dungeon;
@@ -56,20 +60,21 @@ export class DungeonMap {
 
         this.buildCorridors();
 
+        this.walls = new PIXI.Container();
+        
         this.drawDoors();
-
+        
         if (!this.config.hideWalls) {
-            this.walls = new PIXI.Container();
-
+            
             this.placeRoomWalls();
             
             this.placeCorridorWalls();
-
+            
             this.view.addChild(this.walls);
         }
-
+        
         this.drawPassable();
-
+        
         this.highlightCorridor();
     }
 
@@ -84,15 +89,38 @@ export class DungeonMap {
     }
 
     private drawDoors() {
+        let ix = 1;
+        this.doors = [];
         this.rooms.forEach(room => {
             room.room.getDoors((x: number, y: number) => {
-                const d = new PIXI.Graphics();
-                d.beginFill(Colors.BlueGrey.C100);
-                d.drawRect(x * this.scale, y * this.scale, 1 * this.scale, 1 * this.scale);
-                d.endFill();
-                room.view.addChild(d);
+                const plane = y < room.rect.top || y >= room.rect.bottom ? Plane.Horizontal : Plane.Vertical;
+                const door = new DoorView(x, y, plane, this.scale, ix);
+                if (this.getDoor(x, y) || this.corridors.filter(p => p.rect.intersects(door.rect))[0])
+                return;
+                ix++;
+                this.doors.push(door);
+                door.draw();
+                room.view.addChild(door.view);
+                const color = Colors.Brown.color();
+                if (plane == Plane.Horizontal) {
+                    this.walls.addChild(this.wallBuilder.build(door.rect, color, Tip.Contract, Tip.Contract, Direction.Left));
+                    this.walls.addChild(this.wallBuilder.build(door.rect, color, Tip.Contract, Tip.Contract, Direction.Right));
+                }  else {
+                    this.walls.addChild(this.wallBuilder.build(door.rect, color, Tip.Contract, Tip.Contract, Direction.Top));
+                    this.walls.addChild(this.wallBuilder.build(door.rect, color, Tip.Contract, Tip.Contract, Direction.Bottom));
+                }
+                console.log(door.number, ix, door.rect)
             });
         });
+    }
+
+    private getDoor(x: number, y: number) {
+        return this.doors.filter(d => d.position.x == x && d.position.y == y)[0];
+    }
+
+    private drawDoorWall(x: number, y: number, direction: Direction, color: Color) {
+        const edge = new Edge(new Rect(x, y, 1, 1), direction, Structure.Door);
+        edge.segments.forEach(this.drawWalls(edge, color, direction));
     }
 
     buildCorridors() {
@@ -242,5 +270,3 @@ export class DungeonMap {
         return this.data[x * this.height + y];
     }  
 }
-
-type TipFunction = (s: Segment, index: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => Tip;

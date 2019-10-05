@@ -4,14 +4,14 @@ import { Analytics } from "./core/Analytics"
 import { DungeonMap } from "./DungeonMap";
 import { Colors } from './core/Colors';
 import { Config } from './Config'
-import { Point } from './core/Point';
+import { PointValue } from './core/PointValue';
 
 export class Game {
     private pixi: PIXI.Application;
     private interactionHitBox: PIXI.Graphics;
     private dungeonMap: DungeonMap;
     private pointerBlock: PIXI.Graphics;
-    private lastPoint: Point<any>;
+    private lastPoint: PointValue<any>;
     private config: Config;
 
     constructor(config: Config, pixi: PIXI.Application) {
