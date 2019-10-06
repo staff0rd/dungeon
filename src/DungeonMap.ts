@@ -17,7 +17,7 @@ import { EndTip, StartTip } from "./walls/WallTip";
 import { Plane } from "./core/Plane";
 import { Structure } from "./walls/Structure";
 import { Tip } from "./walls/Tip";
-import { RoomGenerator, RoomObject } from "./RoomGenerator";
+import { RoomGenerator } from "./RoomGenerator";
 
 export class DungeonMap {
     view: PIXI.Container;
@@ -81,8 +81,7 @@ export class DungeonMap {
 
     setRoomObjects() {
         const roomGen = new RoomGenerator(this.scale, (x, y) => this.isTraversable(x, y), this.config.roomThoughfare);
-        for (let room of this.rooms)
-            roomGen.generate(room);
+        roomGen.generate(this.rooms);            
     }
 
     private highlightCorridor() {
@@ -116,7 +115,6 @@ export class DungeonMap {
                     this.walls.addChild(this.wallBuilder.build(door.rect, color, Tip.Contract, Tip.Contract, Direction.Top));
                     this.walls.addChild(this.wallBuilder.build(door.rect, color, Tip.Contract, Tip.Contract, Direction.Bottom));
                 }
-                console.log(door.number, ix, door.rect)
             });
         });
     }

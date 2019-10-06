@@ -28,8 +28,17 @@ export class Rect {
         this._height = height;
     }
 
+    inside(x: number, y: number): any {
+        return this.x1 <= x && this.x2 > x &&
+            this.y1 <= y && this.y2 > y;
+    }
+
     equals(rect: Rect) {
         return this.x1 == rect.x1 && this.x2 == rect.x2 && this.y1 == rect.y1 && this.y2 == rect.y2;
+    }
+    
+    grow(by: number) {
+        return new Rect(this.x - by, this.y - by, this.width + 2*by, this.height + 2*by);
     }
 
     aligned(rect: Rect, direction: Direction) {
