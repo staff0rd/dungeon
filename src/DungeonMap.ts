@@ -6,19 +6,18 @@ import { Color, Colors, ColorUtils } from './core/Colors';
 import { Direction } from "./core/Direction";
 import { PointValue } from "./core/PointValue";
 import { Rect } from "./core/Rect";
-import { CorridorView } from "./CorridorView";
-import { DoorView } from './DoorView';
-import { Edge } from "./Edge";
-import { EdgeManager } from "./EdgeManager";
-import { RoomView } from "./RoomView";
-import { Segment } from "./Segment";
-import { WallBuilder } from './WallBuilder';
-import { EndTip, StartTip } from "./WallTip";
+import { CorridorView } from "./blocks/CorridorView";
+import { DoorView } from './blocks/DoorView';
+import { Edge } from "./walls/Edge";
+import { EdgeManager } from "./walls/EdgeManager";
+import { RoomView } from "./blocks/RoomView";
+import { Segment } from "./walls/Segment";
+import { WallBuilder } from './walls/WallBuilder';
+import { EndTip, StartTip } from "./walls/WallTip";
 import { Plane } from "./core/Plane";
-import { Structure } from "./Structure";
-import { Tip } from "./Tip";
-
-const ROOM_SHADE_INDEX = 3;
+import { Structure } from "./walls/Structure";
+import { Tip } from "./walls/Tip";
+import { RoomGenerator, RoomObject } from "./RoomGenerator";
 
 export class DungeonMap {
     view: PIXI.Container;
@@ -63,6 +62,8 @@ export class DungeonMap {
         this.walls = new PIXI.Container();
         
         this.drawDoors();
+
+        this.setRoomObjects();
         
         if (!this.config.hideWalls) {
             
@@ -76,6 +77,12 @@ export class DungeonMap {
         this.drawPassable();
         
         this.highlightCorridor();
+    }
+
+    setRoomObjects() {
+        const roomGen = new RoomGenerator(this.scale, (x, y) => this.isTraversable(x, y), this.config.roomThoughfare);
+        for (let room of this.rooms)
+            roomGen.generate(room);
     }
 
     private highlightCorridor() {
@@ -142,26 +149,14 @@ export class DungeonMap {
     }
 
     private buildRooms() {
-        this.rooms = this.map.getRooms().map((room, ix) => {
-            const x = room.getLeft();
-            const y = room.getTop();
-            const width = room.getRight() - x + 1;
-            const height = room.getBottom() - y + 1;
-            const view = new PIXI.Container();
-            const g = new PIXI.Graphics();
-            const color = ColorUtils.randomColor("BlueGrey");
-            g.beginFill(color.shades[ROOM_SHADE_INDEX].shade);
-            g.drawRect(x * this.scale, y * this.scale, width * this.scale, height * this.scale);
-            g.endFill();
-            view.addChild(g);
+        this.rooms = this.map.getRooms().map((r, ix) => {
             const number = ix + 1;
-            this.view.addChild(view);
-            const rect = new Rect(x, y, width, height);
+            const room = new RoomView(r, this.scale, number);
+            this.view.addChild(room.view);
             if (this.config.roomNumbers) {
-                this.addNumber(rect, number);
+                this.addNumber(room.rect, number);
             }
-            const result = { room, view, number, rect, color };
-            return result;
+            return room;
         });
     }
 

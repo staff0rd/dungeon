@@ -1,10 +1,10 @@
 import * as PIXI from "pixi.js";
-import { Colors } from "./core/Colors";
-import { Direction } from "./core/Direction";
-import { GradientCalculator } from "./core/GradientCalculator";
-import { Plane } from "./core/Plane";
-import { Point } from './core/Point';
-import { Rect } from "./core/Rect";
+import { Colors } from "../core/Colors";
+import { Direction } from "../core/Direction";
+import { GradientCalculator } from "../core/GradientCalculator";
+import { Plane } from "../core/Plane";
+import { Point } from '../core/Point';
+import { Rect } from "../core/Rect";
 
 export class DoorView {
     view: PIXI.Container;

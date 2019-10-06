@@ -1,10 +1,10 @@
 import { EdgeManager } from "./EdgeManager";
 import { Edge } from "./Edge";
-import { Direction } from "./core/Direction";
-import { CorridorView } from "./CorridorView";
-import { Rect } from "./core/Rect";
-import { DungeonMap } from './DungeonMap';
-import { Config } from "./Config";
+import { Direction } from "../core/Direction";
+import { CorridorView } from "../blocks/CorridorView";
+import { Rect } from "../core/Rect";
+import { DungeonMap } from '../DungeonMap';
+import { Config } from "../Config";
 
 describe ("EdgeManager", () => {
     const manager = new EdgeManager((x, y) => true);

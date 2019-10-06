@@ -1,9 +1,9 @@
-import { Rect } from './core/Rect';
-import { Color, Colors } from './core/Colors';
+import { Rect } from '../core/Rect';
+import { Color, Colors } from '../core/Colors';
 import { Tip } from './Tip'
 import * as PIXI from "pixi.js";
-import { Direction } from './core/Direction';
-import { GradientCalculator } from './core/GradientCalculator';
+import { Direction } from '../core/Direction';
+import { GradientCalculator } from '../core/GradientCalculator';
 
 export class WallBuilder {
     private scale: number;

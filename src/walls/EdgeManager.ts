@@ -1,11 +1,10 @@
 import { Structure } from "./Structure";
-import { overlap } from "./core/overlap";
-import { Rect } from "./core/Rect";
-import { RoomView } from "./RoomView";
-import { CorridorView } from "./CorridorView";
+import { overlap } from "../core/overlap";
+import { Rect } from "../core/Rect";
+import { RoomView } from "../blocks/RoomView";
+import { CorridorView } from "../blocks/CorridorView";
 import { Edge } from "./Edge";
-import { Direction } from "./core/Direction";
-import { getDoors } from "./getDoors";
+import { Direction } from "../core/Direction";
 export class EdgeManager {
 
     private canTraverse: (x: number, y: number) => boolean;
@@ -15,11 +14,11 @@ export class EdgeManager {
     }
     
     getRoomEdge(room: RoomView, corridors: CorridorView[], direction: Direction) {
-        const rects = getDoors(room).concat(corridors.map(c => c.rect));
+        const rects = room.getDoors().concat(corridors.map(c => c.rect));
         return this.getEdge(room.rect, rects, direction);
     }
     getCorridorEdge(corridor: CorridorView, rooms: RoomView[], corridorRects: Rect[], direction: Direction) {      
-        const doors = rooms.map(r => getDoors(r));
+        const doors = rooms.map(r => r.getDoors());
         const corridorsToCheckIntersect = corridorRects.filter(c => !corridor.rect.equals(c));
         const rects = rooms.map(r => r.rect)
             .concat([].concat(...doors))

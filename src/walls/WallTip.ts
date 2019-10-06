@@ -1,10 +1,7 @@
 import { Tip } from "./Tip";
 import { Segment } from "./Segment";
-import { Direction } from "./core/Direction";
+import { Direction } from "../core/Direction";
 import { Edge } from "./Edge";
-
-// TODO: door corner 61858, 37261
-// TODO: doors
 
 export const StartTip = (s: Segment, ix: number, edge: Edge, direction: Direction, isTraversable: (x: number, y: number) => boolean) => {
     switch (direction) {

@@ -1,8 +1,8 @@
 import { SegmentPoint } from "./SegmentPoint";
 import { Structure } from "./Structure";
 import { Segment } from "./Segment";
-import { Rect } from "./core/Rect";
-import { Direction } from "./core/Direction";
+import { Rect } from "../core/Rect";
+import { Direction } from "../core/Direction";
 
 export class Edge {
     endMatchesStart(e: Edge) {
