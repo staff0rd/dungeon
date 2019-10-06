@@ -1,9 +1,10 @@
 import * as PIXI from "pixi.js";
-import { Point } from './core/Point';
 import { Colors } from "./core/Colors";
+import { Direction } from "./core/Direction";
+import { GradientCalculator } from "./core/GradientCalculator";
 import { Plane } from "./core/Plane";
+import { Point } from './core/Point';
 import { Rect } from "./core/Rect";
-import { Random } from "./core/Random";
 
 export class DoorView {
     view: PIXI.Container;
@@ -35,20 +36,53 @@ export class DoorView {
 
     drawPattern() {
         const container = new PIXI.Container();
-        for (let i = this.scale; i > 0; i-= this.scale/5) {
-            const shades = Colors.Brown.color().shades;
-            const start = 3;
-            const color = Random.pick([shades[start], shades[start+1], shades[start+2]]).shade
-            const g = new PIXI.Graphics();
-            g.beginFill(color)
-            .lineStyle(1, Colors.Black)
-            .drawRect(0, 0, i, this.scale)
-            g.endFill();
-            container.addChild(g);
-        }
+        // for (let i = this.scale; i > 0; i-= this.scale/5) {
+        //     const shades = Colors.Brown.color().shades;
+        //     const start = 3;
+        //     const color = Random.pick([shades[start], shades[start+1], shades[start+2]]).shade
+        //     const g = new PIXI.Graphics();
+        //     g.beginFill(color)
+        //     .lineStyle(1, Colors.Black)
+        //     .drawRect(0, 0, i, this.scale)
+        //     g.endFill();
+        //     container.addChild(g);
+        // }
+
+        const g = this.getDoor(Direction.Right);
+        const h = this.getDoor(Direction.Left);
+        h.position.x = this.scale * .5;
+        container.addChild(g, h);
+
+        const handle1 = this.getDoorHandle();
+        const handle2 = this.getDoorHandle();
+        handle1.position.set(this.scale/2 -this.scale/6, this.scale /2);
+        handle2.position.set(this.scale/2 +this.scale/6, this.scale /2);
+        container.addChild(handle1, handle2);
+        
+        if (this.plane == Plane.Vertical)
+            container.rotation = Math.PI/2;
+
         container.pivot.set(container.width/2, container.height/2);
         container.position.set(this.scale * (this.position.x + .5), this.scale * (this.position.y + .5));
         this.foreground.addChild(container);
+    }
+
+    private getDoorHandle() {
+        const handle = new PIXI.Graphics();
+        handle.beginFill(Colors.Black)
+            .drawCircle(0, 0, 2)
+            .endFill();
+        return handle;
+    }
+
+    private getDoor(direction: Direction) {
+        const gradient = new GradientCalculator();
+        const texture = gradient.getTexture(direction, Colors.Brown.color(), this.scale / 2, this.scale, this.scale / 2, 0);
+        const g = new PIXI.Graphics();
+        g.beginTextureFill(texture)
+            .lineStyle(1, Colors.Black)
+            .drawRect(0, 0, this.scale / 2, this.scale);
+        return g;
     }
 
     drawNumber() {
