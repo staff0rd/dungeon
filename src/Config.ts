@@ -9,4 +9,6 @@ export class Config {
     width = 60;
     height = 30;
     wallNumbers = false;
+    roomThoughfare = false;
+    sameColorWalls = false;
 }

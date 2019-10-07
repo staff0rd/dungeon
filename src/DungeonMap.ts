@@ -229,6 +229,8 @@ export class DungeonMap {
     }
 
     private drawWalls(edge: Edge, color: Color, direction: Direction) {
+        if (this.config.sameColorWalls)
+            color = Colors.BlueGrey.color()
         const number = this.walls.children.length + 1;
         return (s: Segment, ix: number, all: Segment[]) => {
             let wallRect: Rect;
