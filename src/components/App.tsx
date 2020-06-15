@@ -4,7 +4,6 @@ import { Colors } from '../core/Colors'
 import { Game } from '../Game'
 import { Config } from '../Config'
 import { Browser } from "../core/Browser";
-import { Random } from "../core/Random";
 
 export interface AppProps { compiler: string; framework: string; }
 
@@ -18,6 +17,7 @@ export class App extends React.Component<AppProps, AppState> {
     getConfig() {
         const config = new Config();
         config.seed =  Browser.getQueryNumber("seed");
+        config.scale = Browser.getQueryNumber("scale", 20);
         config.roomNumbers = Browser.getQueryBoolean("roomNumbers", false);
         config.corridorNumbers = Browser.getQueryBoolean("corridorNumbers", false);
         config.passable = Browser.getQueryBoolean("passable", false);
