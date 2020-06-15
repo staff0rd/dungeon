@@ -77,6 +77,7 @@ export class DoorView {
 
     private getDoor(direction: Direction) {
         const gradient = new GradientCalculator();
+        // @ts-ignore
         const texture = gradient.getTexture(direction, Colors.Brown.color(), this.scale / 2, this.scale, this.scale / 2, 0);
         const g = new PIXI.Graphics();
         g.beginTextureFill(texture)

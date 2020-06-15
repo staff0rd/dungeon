@@ -78,7 +78,7 @@ export class WallBuilder {
                 break;
             }
         }
-
+        // @ts-ignore
         g.beginTextureFill(gradient)
             .lineStyle(1, Colors.Black)
             .drawPolygon(points);
