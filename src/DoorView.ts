@@ -80,6 +80,7 @@ export class DoorView {
         // @ts-ignore
         const texture = gradient.getTexture(direction, Colors.Brown.color(), this.scale / 2, this.scale, this.scale / 2, 0);
         const g = new PIXI.Graphics();
+        // @ts-ignore
         g.beginTextureFill(texture)
             .lineStyle(1, Colors.Black)
             .drawRect(0, 0, this.scale / 2, this.scale);
