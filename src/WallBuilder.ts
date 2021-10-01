@@ -3,7 +3,7 @@ import { Color, Colors } from "./core/Colors";
 import { Tip } from "./Tip";
 import * as PIXI from "pixi.js";
 import { Direction } from "./core/Direction";
-import { GradientCalculator } from "./core/GradientCalculator";
+import { getGradientTexture } from "./core/getGradientTexture";
 
 type PointsAndCenter = {
   points: number[];
@@ -12,10 +12,8 @@ type PointsAndCenter = {
 
 export class WallBuilder {
   private scale: number;
-  private gradient: GradientCalculator;
   constructor(scale: number) {
     this.scale = scale;
-    this.gradient = new GradientCalculator();
   }
 
   build(
@@ -34,7 +32,7 @@ export class WallBuilder {
       case Direction.Right: {
         width = this.scale * 0.5;
         height = rect.height * this.scale;
-        gradient = this.gradient.getTexture(
+        gradient = getGradientTexture(
           direction,
           color,
           width,
@@ -48,7 +46,7 @@ export class WallBuilder {
       case Direction.Bottom: {
         width = rect.width * this.scale;
         height = this.scale * 0.5;
-        gradient = this.gradient.getTexture(
+        gradient = getGradientTexture(
           direction,
           color,
           width + this.scale,
