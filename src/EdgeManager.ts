@@ -98,10 +98,7 @@ export class EdgeManager {
     return edge;
   }
 
-  join(
-    edges: Edge[],
-    debugFocusOn: (r: Rect) => boolean = () => false
-  ): Edge[] {
+  join(edges: Edge[]): Edge[] {
     if (edges.length == 1) return edges;
     const nonEmptyEdges = edges.filter((e) => e.segmentPoints.length);
     for (let i = 0; i < nonEmptyEdges.length; i++) {
@@ -113,7 +110,7 @@ export class EdgeManager {
       const joining = aligned.filter(
         (e) => first.endMatchesStart(e) || first.startMatchesEnd(e)
       );
-      if (debugFocusOn && !debugFocusOn(first.rect)) continue;
+
       const second = joining[0];
 
       if (second) {
