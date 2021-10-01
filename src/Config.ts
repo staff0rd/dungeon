@@ -1,14 +1,15 @@
 export class Config {
-    seed?: number;
-    roomNumbers = false;
-    corridorNumbers = false;
-    passable = false;
-    scale = 20;
-    hideWalls = false;
-    corridor?: number;
-    width = 60;
-    height = 30;
-    wallNumbers = false;
-    roomThoughfare = false;
-    sameColorWalls = false;
+  seed?: number;
+  roomNumbers = false;
+  corridorNumbers = false;
+  passable = false;
+  scale = 20;
+  hideWalls = false;
+  corridor?: number;
+  width = 60;
+  height = 30;
+  wallNumbers = false;
+  roomThoughfare = false;
+  sameColorWalls = false;
+  focusWall?: number;
 }

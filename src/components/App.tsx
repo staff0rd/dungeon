@@ -24,6 +24,7 @@ export class App extends React.Component<{}, AppState> {
     config.wallNumbers = Browser.getQueryBoolean("wallNumbers", false);
     config.roomThoughfare = Browser.getQueryBoolean("roomThroughfare", false);
     config.sameColorWalls = Browser.getQueryBoolean("sameColorWalls", false);
+    config.focusWall = Browser.getQueryNumber("focusWall");
     return config;
   }
 
