@@ -10,6 +10,11 @@ type PointsAndCenter = {
   center: { x: number; y: number };
 };
 
+const getMinY = (points: number[]) =>
+  Math.min(...points.filter((p, ix) => ix % 2 !== 0));
+const getMinX = (points: number[]) =>
+  Math.min(...points.filter((p, ix) => ix % 2 === 0));
+
 export class WallBuilder {
   private scale: number;
   constructor(scale: number) {
@@ -73,12 +78,19 @@ export class WallBuilder {
       console.log("center", center);
       console.log("toTip", toTip);
       console.log("gradient", gradient);
+      console.log("minY", getMinY(points));
+      console.log("minX", getMinX(points));
     }
 
     const g = new PIXI.Graphics();
     g.position.set(center.x, center.y);
-    // @ts-ignore
-    g.beginTextureFill(gradient).lineStyle(1, Colors.Black).drawPolygon(points);
+
+    g.beginTextureFill({
+      texture: gradient,
+      matrix: new PIXI.Matrix().translate(getMinX(points), getMinY(points)),
+    })
+      .lineStyle(1, Colors.Black)
+      .drawPolygon(points);
 
     return g;
   }
