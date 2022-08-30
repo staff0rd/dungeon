@@ -28,6 +28,6 @@
     "jest-canvas-mock": "^2.3.1",
     "ts-node": "^10.2.1",
     "typescript": "^4.3.2",
-    "vite": "^2.6.0"
+    "vite": "^2.9.13"
   }
 }
