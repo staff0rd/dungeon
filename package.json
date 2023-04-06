@@ -24,6 +24,7 @@
     "@types/react-dom": "^17.0.0",
     "@vitejs/plugin-react": "^1.0.0",
     "babel-jest": "^27.2.4",
+    "esbuild": "^0.17.15",
     "jest": "^27.2.4",
     "jest-canvas-mock": "^2.3.1",
     "ts-node": "^10.2.1",
