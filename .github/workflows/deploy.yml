@@ -1,5 +1,9 @@
 name: Deploy
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
 on:
   push:
     branches:
@@ -21,3 +25,9 @@ jobs:
           find: "$$build$$"
           replace: "${{ github.run_number }}"
           include: "dist/**"
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - run: |
+        aws s3 sync dist ${{ secrets.AWS_S3_URI }}
