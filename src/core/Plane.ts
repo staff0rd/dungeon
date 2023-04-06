@@ -1,4 +1,4 @@
 export enum Plane {
-    Vertical,
-    Horizontal
+  Vertical,
+  Horizontal,
 }

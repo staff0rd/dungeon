@@ -1,4 +1,4 @@
 export type GradientColorPoint = {
-    start: string;
-    stop: string;
+  start: string;
+  stop: string;
 };
