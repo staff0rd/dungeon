@@ -29,4 +29,4 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - run: aws s3 sync dist ${{ secrets.AWS_S3_URI }}
+      - run: aws s3 sync dist ${{ secrets.AWS_S3_URI }} --delete
