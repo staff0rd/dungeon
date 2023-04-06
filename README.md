@@ -8,9 +8,9 @@
 
 ## run from source
 ```bash
-yarn
-npx webpack-cli serve
+npm i
+npm run dev
 ```
 
-Then browse to http://localhost:5000
+Then browse to http://localhost:3000
 
