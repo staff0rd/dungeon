@@ -19,5 +19,5 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "$$build$$"
-          replace: "${{ vars.GITHUB_RUN_NUMBER }}"
+          replace: "${{ github.run_number }}"
           include: "dist/**"
