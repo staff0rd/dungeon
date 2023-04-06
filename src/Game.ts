@@ -8,10 +8,10 @@ import { PointValue } from './core/PointValue';
 
 export class Game {
     private pixi: PIXI.Application;
-    private interactionHitBox: PIXI.Graphics;
+    private interactionHitBox = new PIXI.Graphics();
     private dungeonMap: DungeonMap;
-    private pointerBlock: PIXI.Graphics;
-    private lastPoint: PointValue<any>;
+    private pointerBlock!: PIXI.Graphics;
+    private lastPoint!: PointValue<any>;
     private config: Config;
 
     constructor(config: Config, pixi: PIXI.Application) {
@@ -42,7 +42,6 @@ export class Game {
 
     initInteraction() {
         this.pixi.stage.interactive =true;
-        this.interactionHitBox = new PIXI.Graphics();
         this.interactionHitBox.beginFill();
         this.interactionHitBox.drawRect(0, 0, 1, 1);
         this.interactionHitBox.endFill();
@@ -50,11 +49,11 @@ export class Game {
         this.interactionHitBox.height = window.innerHeight;
         this.interactionHitBox.interactive = true;
         this.interactionHitBox.on('pointertap', () => this.init());
-        this.interactionHitBox.on('pointermove', (e: PIXI.interaction.InteractionEvent) => this.pointerMove(e));
+        this.interactionHitBox.on('pointermove', (e: PIXI.InteractionEvent) => this.pointerMove(e));
         this.interactionHitBox.alpha = 0;
     }
 
-    pointerMove(e: PIXI.interaction.InteractionEvent): any {
+    pointerMove(e: PIXI.InteractionEvent): any {
         const position = e.data.getLocalPosition(this.dungeonMap.view);
         const x = Math.floor(position.x), y = Math.floor(position.y);
         const point = this.dungeonMap.getPoint(x,y);

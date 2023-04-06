@@ -5,20 +5,21 @@ import { CorridorView } from "./CorridorView";
 import { Rect } from "./core/Rect";
 import { DungeonMap } from './DungeonMap';
 import { Config } from "./Config";
+import { Structure } from "./Structure";
 
 describe ("EdgeManager", () => {
     const manager = new EdgeManager((x, y) => true);
 
     describe('join', () => {
         test('should join continuous edges', () => {
-            const edges = [new Edge(new Rect(1, 0, 1, 1), Direction.Top), new Edge (new Rect(2, 0, 1, 1), Direction.Top)];
+            const edges = [new Edge(new Rect(1, 0, 1, 1), Direction.Top, Structure.Room), new Edge (new Rect(2, 0, 1, 1), Direction.Top, Structure.Room)];
             const result = manager.join(edges);
             expect (result.length).toBe(1);
             expect(result[0].start).toBe(1);
             expect(result[0].end).toBe(3);
         });
         test('should join continuous edges (reverse)', () => {
-            const edges = [new Edge (new Rect(2, 0, 1, 1), Direction.Top), new Edge(new Rect(1, 0, 1, 1), Direction.Top)];
+            const edges = [new Edge (new Rect(2, 0, 1, 1), Direction.Top, Structure.Room), new Edge(new Rect(1, 0, 1, 1), Direction.Top, Structure.Room)];
             const result = manager.join(edges);
             expect (result.length).toBe(1);
             expect(result[0].start).toBe(1);
@@ -69,6 +70,6 @@ function getMapEdges(seed: number, direction: Direction, selectEdge: (r: Rect) =
     map.createMap();
     map.buildCorridors();
     const edges = map.corridors.map(corridor => edgeManager.getCorridorEdge(corridor, [], map.corridors.map(c => c.rect), direction));
-    const joined = edgeManager.join(edges, selectEdge);
+    const joined = edgeManager.join(edges);
     return { edges: edges.filter(e => selectEdge(e.rect)), joined: joined.filter(e => selectEdge(e.rect)) };
 }

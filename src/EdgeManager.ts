@@ -6,6 +6,7 @@ import { CorridorView } from "./CorridorView";
 import { Edge } from "./Edge";
 import { Direction } from "./core/Direction";
 import { getDoors } from "./getDoors";
+
 export class EdgeManager {
   private canTraverse: (x: number, y: number) => boolean;
 
@@ -29,7 +30,7 @@ export class EdgeManager {
     );
     const rects = rooms
       .map((r) => r.rect)
-      .concat([].concat(...doors))
+      .concat(...doors)
       .concat(corridorsToCheckIntersect);
     const edge = this.getEdge(corridor.rect, rects, direction);
     return edge;

@@ -22,12 +22,12 @@ const ROOM_SHADE_INDEX = 3;
 
 export class DungeonMap {
   view: PIXI.Container;
-  data: PointValue<number>[];
-  rooms: RoomView[];
-  doors: DoorView[];
-  walls: PIXI.Container;
-  corridors: CorridorView[];
-  private map: Dungeon;
+  data!: PointValue<number>[];
+  rooms!: RoomView[];
+  doors!: DoorView[];
+  walls!: PIXI.Container;
+  corridors!: CorridorView[];
+  private map!: Dungeon;
   private width: number;
   private height: number;
   private scale: number;

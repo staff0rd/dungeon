@@ -9,8 +9,8 @@ import { Rect } from "./core/Rect";
 export class DoorView {
   view: PIXI.Container;
   position: Point;
-  private background: PIXI.Graphics;
-  private foreground: PIXI.Container;
+  private background!: PIXI.Graphics;
+  private foreground!: PIXI.Container;
   private scale: number;
   private plane: Plane;
   private _number: number;
