@@ -19,7 +19,7 @@ jobs:
       - run: npm ci
       - run: npm run test
       - run: npm run build
-      - run: npx replace-in-files-cli --string='$$build$$' --replacement='${{ github.run_number }}-${{ github.sha }}'
+      - run: npx replace-in-files-cli --string='$$build$$' --replacement='${{ github.run_number }}-${{ github.sha }}' dist/index.html
       - uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
