@@ -12,5 +12,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: npm run ci
+      - run: npm ci
       - run: npm run build 
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "$$build$$"
+          replace: ${{ vars.GITHUB_RUN_NUMBER }}
+          include: "dist/**"
