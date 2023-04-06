@@ -24,7 +24,7 @@ jobs:
         with:
           find: "$$build$$"
           replace: "${{ github.run_number }}"
-          include: "dist/**"
+          include: "dist/index.html"
       - uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
