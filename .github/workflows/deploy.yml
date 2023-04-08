@@ -19,7 +19,9 @@ jobs:
       - run: npm ci
       - run: npm run test
       - run: npm run build
-      - run: npx replace-in-files-cli --string='$$build$$' --replacement='${{ github.run_number }}-${{ github.sha }}' dist/index.html
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
+      - run: npx replace-in-files-cli --string='$$build$$' --replacement='${{ env.GITHUB_SHA_SHORT }}' dist/index.html
       - uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
