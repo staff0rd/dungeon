@@ -1,0 +1,17 @@
+name: Deploy
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: ./.github/workflows/deploy.yml@main
+    with:
+      working-directory: ubuntu-latest
+      purge-urls: '["https://atqu.in/games/dungeon","https://atqu.in/games/dungeon/","https://atqu.in/games/dungeon/index.html"]'
