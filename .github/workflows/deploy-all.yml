@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  build:
+  deploy-2d:
     uses: ./.github/workflows/deploy.yml
     with:
       working-directory: packages/2d
@@ -18,6 +18,17 @@ jobs:
     secrets:
       AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_S3_URI: ${{ secrets.AWS_S3_URI }}
+      AWS_S3_URI: ${{ secrets.AWS_S3_2D_URI }}
+      CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+      CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+  deploy-3d:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      working-directory: packages/3d
+      purge-urls: '["https://atqu.in/games/dungeon3d","https://atqu.in/games/dungeon3d/","https://atqu.in/games/dungeon3d/index.html"]'
+    secrets:
+      AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_S3_URI: ${{ secrets.AWS_S3_3D_URI }}
       CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
       CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
