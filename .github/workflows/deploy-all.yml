@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/deploy.yml@main
+    uses: ./.github/workflows/deploy.yml
     with:
       working-directory: ubuntu-latest
       purge-urls: '["https://atqu.in/games/dungeon","https://atqu.in/games/dungeon/","https://atqu.in/games/dungeon/index.html"]'
