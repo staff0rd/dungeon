@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-      - run: npm run test
+      - run: npm run test --if-present
       - run: npm run build
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
