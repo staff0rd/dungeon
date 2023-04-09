@@ -11,27 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build & deploy 2d
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/2d
-    steps:
-      - uses: actions/checkout@v3
-      - run: npm ci
-      - run: npm run test
-      - run: npm run build
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v4
-      - run: npx replace-in-files-cli --string='$$build$$' --replacement='${{ env.GITHUB_SHA_SHORT }}' dist/index.html
-      - uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - run: aws s3 sync dist ${{ secrets.AWS_S3_URI }} --delete
-      - name: Purge cache
-        uses: jakejarvis/cloudflare-purge-action@master
-        env:
-          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
-          PURGE_URLS: '["https://atqu.in/games/dungeon","https://atqu.in/games/dungeon/","https://atqu.in/games/dungeon/index.html"]'
+    uses: ./.github/actions/deploy.yml@main
+    with:
+      working-directory: ubuntu-latest
+      purge-urls: '["https://atqu.in/games/dungeon","https://atqu.in/games/dungeon/","https://atqu.in/games/dungeon/index.html"]'
