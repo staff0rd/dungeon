@@ -15,3 +15,9 @@ jobs:
     with:
       working-directory: packages/2d
       purge-urls: '["https://atqu.in/games/dungeon","https://atqu.in/games/dungeon/","https://atqu.in/games/dungeon/index.html"]'
+    secrets:
+      AWS_DEPLOY_ROLE: ${{ secrets.AWS_DEPLOY_ROLE }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_S3_URI: ${{ secrets.AWS_S3_URI }}
+      CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+      CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}

@@ -13,6 +13,17 @@ on:
       purge-urls:
         required: true
         type: string
+    secrets:
+      AWS_DEPLOY_ROLE:
+        required: true
+      AWS_REGION:
+        required: true
+      AWS_S3_URI:
+        required: true
+      CLOUDFLARE_ZONE:
+        required: true
+      CLOUDFLARE_TOKEN:
+        required: true
 
 jobs:
   build:
