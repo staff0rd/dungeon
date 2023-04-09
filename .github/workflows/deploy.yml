@@ -10,6 +10,9 @@ on:
       working-directory:
         required: true
         type: string
+      purge-urls:
+        required: true
+        type: string
 
 jobs:
   build:
