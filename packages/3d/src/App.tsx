@@ -57,6 +57,19 @@ export const App = () => {
           />
         );
       })}
+      {map.corridors.map((corridor, ix) => {
+        return (
+          <>
+            <Box
+              key={ix}
+              position={[corridor.rect.x, corridor.rect.y, 1]}
+              width={corridor.rect.width}
+              height={corridor.rect.height}
+              color={corridor.color}
+            />
+          </>
+        );
+      })}
     </>
   );
 };

@@ -1,7 +1,7 @@
 import { Map, RNG } from "rot-js";
 import Dungeon from "rot-js/lib/map/dungeon";
-import { Room } from "rot-js/lib/map/features";
-import { ColorUtils } from "../../core/Colors";
+import { Corridor, Room } from "rot-js/lib/map/features";
+import { Colors, ColorUtils } from "../../core/Colors";
 import { PointValue } from "../../core/PointValue";
 import { Rect } from "../../core/Rect";
 import Config from "./Config";
@@ -15,10 +15,18 @@ type RoomStructure = {
   room: Room;
 };
 
+type CorridorStructure = {
+  rect: Rect;
+  number: number;
+  corridor: Corridor;
+  color: number;
+};
+
 export class DungeonMap {
   data!: PointValue<number>[];
   private map!: Dungeon;
   rooms = [] as RoomStructure[];
+  corridors = [] as CorridorStructure[];
 
   constructor(private config: typeof Config) {
     this.config = config;
@@ -34,6 +42,8 @@ export class DungeonMap {
     this.createMap();
 
     this.buildRooms();
+
+    this.buildCorridors();
   }
 
   private createMap() {
@@ -41,6 +51,20 @@ export class DungeonMap {
     this.data = [];
     this.map.create((x: number, y: number, value: number) => {
       this.data.push({ x, y, value });
+    });
+  }
+
+  buildCorridors() {
+    this.corridors = this.map.getCorridors().map((corridor, ix) => {
+      const number = ix + 1;
+      const rect = new Rect(
+        Math.min(corridor._startX, corridor._endX),
+        Math.min(corridor._startY, corridor._endY),
+        Math.abs(corridor._endX - corridor._startX) + 1,
+        Math.abs(corridor._endY - corridor._startY) + 1
+      );
+
+      return { corridor, color: Colors.BlueGrey.C500, rect, number };
     });
   }
 
