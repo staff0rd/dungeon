@@ -2,7 +2,13 @@ import { ThreeElements, useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { useOnCanvasResize } from "./useOnCanvasResize";
 
-export function Box(props: ThreeElements["mesh"]) {
+type Props = ThreeElements["mesh"] & {
+  width: number;
+  height: number;
+  color: number;
+};
+
+export function Box({ color, width, height, ...props }: Props) {
   const mesh = useRef<THREE.Mesh>(null!);
   const [hovered, setHover] = useState(false);
   const [active, setActive] = useState(false);
@@ -11,7 +17,7 @@ export function Box(props: ThreeElements["mesh"]) {
     mesh.current.scale.set(aspect, aspect, aspect);
   });
   useFrame((state, delta) => {
-    mesh.current.rotation.x += delta;
+    //mesh.current.rotation.x += delta;
   });
 
   return (
@@ -23,8 +29,8 @@ export function Box(props: ThreeElements["mesh"]) {
       onPointerOver={(event) => setHover(true)}
       onPointerOut={(event) => setHover(false)}
     >
-      <boxGeometry args={[0.5, 0.5, 0.5]} />
-      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+      <boxGeometry args={[width, height, 0.5]} />
+      <meshStandardMaterial color={color} />
     </mesh>
   );
 }
