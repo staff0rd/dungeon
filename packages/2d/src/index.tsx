@@ -1,6 +1,5 @@
-import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Analytics } from "./core/Analytics";
+import { Analytics } from "../../core/Analytics";
 import { App } from "./components/App";
 
 interface Window {

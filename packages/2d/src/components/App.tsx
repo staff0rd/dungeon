@@ -1,9 +1,9 @@
-import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Colors } from "../core/Colors";
-import { Game } from "../Game";
+import * as React from "react";
+import { Browser } from "../../../core/Browser";
+import { Colors } from "../../../core/Colors";
 import { Config } from "../Config";
-import { Browser } from "../core/Browser";
+import { Game } from "../Game";
 
 export interface AppState {}
 

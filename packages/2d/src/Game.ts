@@ -1,10 +1,10 @@
 import * as PIXI from "pixi.js";
-import { Random } from "./core//Random";
-import { Analytics } from "./core/Analytics";
-import { DungeonMap } from "./DungeonMap";
-import { Colors } from "./core/Colors";
+import { Analytics } from "../../core/Analytics";
+import { Colors } from "../../core/Colors";
+import { PointValue } from "../../core/PointValue";
+import { Random } from "../../core/Random";
 import { Config } from "./Config";
-import { PointValue } from "./core/PointValue";
+import { DungeonMap } from "./DungeonMap";
 
 export class Game {
   private pixi: PIXI.Application;

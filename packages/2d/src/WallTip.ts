@@ -1,7 +1,7 @@
-import { Tip } from "./Tip";
-import { Segment } from "./Segment";
-import { Direction } from "./core/Direction";
+import { Direction } from "../../core/Direction";
 import { Edge } from "./Edge";
+import { Segment } from "./Segment";
+import { Tip } from "./Tip";
 
 // TODO: door corner 61858, 37261
 // TODO: doors

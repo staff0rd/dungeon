@@ -1,4 +1,4 @@
-import { Rect } from "./core/Rect";
+import { Rect } from "../../core/Rect";
 import { RoomView } from "./RoomView";
 export function getDoors(roomView: RoomView) {
   const doors: Rect[] = [];

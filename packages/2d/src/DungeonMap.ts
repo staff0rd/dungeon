@@ -1,22 +1,22 @@
 import * as PIXI from "pixi.js";
 import { Map, RNG } from "rot-js";
 import { default as Dungeon } from "rot-js/lib/map/dungeon";
+import { Color, Colors, ColorUtils } from "../../core/Colors";
+import { Direction } from "../../core/Direction";
+import { Plane } from "../../core/Plane";
+import { PointValue } from "../../core/PointValue";
+import { Rect } from "../../core/Rect";
 import { Config } from "./Config";
-import { Color, Colors, ColorUtils } from "./core/Colors";
-import { Direction } from "./core/Direction";
-import { PointValue } from "./core/PointValue";
-import { Rect } from "./core/Rect";
 import { CorridorView } from "./CorridorView";
 import { DoorView } from "./DoorView";
 import { Edge } from "./Edge";
 import { EdgeManager } from "./EdgeManager";
 import { RoomView } from "./RoomView";
 import { Segment } from "./Segment";
-import { WallBuilder } from "./WallBuilder";
-import { EndTip, StartTip } from "./WallTip";
-import { Plane } from "./core/Plane";
 import { Structure } from "./Structure";
 import { Tip } from "./Tip";
+import { WallBuilder } from "./WallBuilder";
+import { EndTip, StartTip } from "./WallTip";
 
 const ROOM_SHADE_INDEX = 3;
 

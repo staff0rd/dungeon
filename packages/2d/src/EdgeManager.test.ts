@@ -1,10 +1,10 @@
-import { EdgeManager } from "./EdgeManager";
-import { Edge } from "./Edge";
-import { Direction } from "./core/Direction";
-import { CorridorView } from "./CorridorView";
-import { Rect } from "./core/Rect";
-import { DungeonMap } from "./DungeonMap";
+import { Direction } from "../../core/Direction";
+import { Rect } from "../../core/Rect";
 import { Config } from "./Config";
+import { CorridorView } from "./CorridorView";
+import { DungeonMap } from "./DungeonMap";
+import { Edge } from "./Edge";
+import { EdgeManager } from "./EdgeManager";
 import { Structure } from "./Structure";
 
 describe("EdgeManager", () => {

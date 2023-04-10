@@ -1,11 +1,11 @@
-import { Structure } from "./Structure";
-import { overlap } from "./core/overlap";
-import { Rect } from "./core/Rect";
-import { RoomView } from "./RoomView";
+import { Direction } from "../../core/Direction";
+import { overlap } from "../../core/overlap";
+import { Rect } from "../../core/Rect";
 import { CorridorView } from "./CorridorView";
 import { Edge } from "./Edge";
-import { Direction } from "./core/Direction";
 import { getDoors } from "./getDoors";
+import { RoomView } from "./RoomView";
+import { Structure } from "./Structure";
 
 export class EdgeManager {
   private canTraverse: (x: number, y: number) => boolean;

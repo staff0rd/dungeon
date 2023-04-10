@@ -1,6 +1,6 @@
 import { Room } from "rot-js/lib/map/features";
-import { Color } from "./core/Colors";
-import { Rect } from "./core/Rect";
+import { Color } from "../../core/Colors";
+import { Rect } from "../../core/Rect";
 
 export type RoomView = {
   view: PIXI.Container;

@@ -1,7 +1,7 @@
+import { Direction } from "../../core/Direction";
+import { Rect } from "../../core/Rect";
 import { Edge } from "./Edge";
-import { Rect } from "./core/Rect";
 import { Structure } from "./Structure";
-import { Direction } from "./core/Direction";
 
 describe("Edge", () => {
   describe("insert", () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Analytics } from "../../core/Analytics";
 import { App } from "./components/App";
-import { Analytics } from "./core/Analytics";
 import "./index.css";
 
 interface Window {

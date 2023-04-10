@@ -1,9 +1,9 @@
-import { Rect } from "./core/Rect";
-import { Color, Colors } from "./core/Colors";
-import { Tip } from "./Tip";
 import * as PIXI from "pixi.js";
-import { Direction } from "./core/Direction";
-import { getGradientTexture } from "./core/getGradientTexture";
+import { Color, Colors } from "../../core/Colors";
+import { Direction } from "../../core/Direction";
+import { getGradientTexture } from "../../core/getGradientTexture";
+import { Rect } from "../../core/Rect";
+import { Tip } from "./Tip";
 
 type PointsAndCenter = {
   points: number[];
